@@ -1,0 +1,110 @@
+/* ===== Global Styles ===== */
+* {
+    box-sizing: border-box;
+    margin: 0;
+    padding: 0;
+    font-family: Arial, sans-serif;
+}
+
+body {
+    background-color: #f5f5f5;
+    color: #333;
+    padding: 20px;
+}
+
+header {
+    text-align: center;
+    margin-bottom: 20px;
+}
+
+h1 {
+    color: #0077cc;
+}
+
+section {
+    background: #fff;
+    padding: 15px;
+    margin-bottom: 20px;
+    border-radius: 10px;
+    box-shadow: 0 0 10px rgba(0,0,0,0.1);
+}
+
+input {
+    padding: 10px;
+    margin-right: 10px;
+    margin-bottom: 10px;
+    border-radius: 5px;
+    border: 1px solid #ccc;
+}
+
+input[type="time"], input[type="date"] {
+    width: 150px;
+}
+
+button {
+    padding: 10px 15px;
+    border: none;
+    border-radius: 5px;
+    background-color: #0077cc;
+    color: white;
+    cursor: pointer;
+    margin-top: 5px;
+}
+
+button:hover {
+    background-color: #005fa3;
+}
+
+ul {
+    list-style-type: none;
+}
+
+li {
+    margin-bottom: 8px;
+}
+
+/* Event list styling */
+#event-list li {
+    background-color: #e0f0ff;
+    padding: 5px 8px;
+    border-radius: 5px;
+}
+
+/* ===== Collapsible Day Section Styles ===== */
+.day-section {
+    border: 1px solid #ccc;
+    border-radius: 8px;
+    margin-bottom: 10px;
+    background-color: #fff;
+    box-shadow: 0 2px 5px rgba(0,0,0,0.05);
+}
+
+.day-header {
+    padding: 10px;
+    font-weight: bold;
+    cursor: pointer;
+    background: #f3f3f3;
+    border-radius: 8px 8px 0 0;
+}
+
+.day-header:hover {
+    background: #e0e0e0;
+}
+
+.day-content {
+    display: none;
+    padding: 10px;
+}
+
+.range-row {
+    display: flex;
+    gap: 8px;
+    margin-bottom: 6px;
+}
+
+/* Scrollable user & event lists */
+#users, #event-list {
+    max-height: 200px;
+    overflow-y: auto;
+    padding-left: 15px;
+}
