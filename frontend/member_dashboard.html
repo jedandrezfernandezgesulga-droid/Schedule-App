@@ -211,13 +211,14 @@ const notif = document.getElementById('notification');
 // --- Render Functions ---
 
 function render() {
+  // Separate events into pending and confirmed lists
   const pending = MOCK_EVENTS.filter(e => e.status === 'pending');
   const confirmed = MOCK_EVENTS.filter(e => e.status === 'confirmed');
 
-  // Update Badge
+  // Update Pending Badge Count
   pendingCount.textContent = `${pending.length} Pending`;
 
-  // Render Pending
+  // Render Pending Invites
   if (pending.length === 0) {
     pendingContainer.innerHTML = `<div class="empty-state">You're all caught up! No pending invites.</div>`;
   } else {
@@ -243,33 +244,42 @@ function render() {
     `).join('');
   }
 
-  // Render Schedule
+  // Render Confirmed Schedule
   if (confirmed.length === 0) {
     scheduleContainer.innerHTML = `<div class="empty-state">No upcoming shifts.</div>`;
   } else {
-    scheduleContainer.innerHTML = confirmed.map(evt => `
-      <div class="event-row">
-        <div class="date-box">
-          <div class="date-day">${evt.date.split('-')[2]}</div>
-          <div class="date-month">NOV</div> <!-- Mocked month -->
+    scheduleContainer.innerHTML = confirmed.map(evt => {
+      const dateParts = evt.date.split('-');
+      const day = dateParts[2];
+      // Note: Month is hardcoded as NOV for mock display purposes
+      const monthAbbr = "NOV"; 
+      
+      return `
+        <div class="event-row">
+          <div class="date-box">
+            <div class="date-day">${day}</div>
+            <div class="date-month">${monthAbbr}</div>
+          </div>
+          <div class="event-info" style="flex:1;">
+            <h4>${evt.title}</h4>
+            <p>${evt.time} • ${evt.location}</p>
+          </div>
+          <div class="status-badge">Confirmed</div>
         </div>
-        <div class="event-info" style="flex:1;">
-          <h4>${evt.title}</h4>
-          <p>${evt.time} • ${evt.location}</p>
-        </div>
-        <div class="status-badge">Confirmed</div>
-      </div>
-    `).join('');
+      `;
+    }).join('');
   }
 }
 
 // --- Logic ---
 
+// Helper function to format the date string into a readable format
 function formatDate(dateStr) {
   const options = { weekday: 'long', month: 'short', day: 'numeric' };
   return new Date(dateStr).toLocaleDateString('en-US', options);
 }
 
+// Global function to handle Accept/Decline actions for pending events
 window.handleAction = function(id, action) {
   const idx = MOCK_EVENTS.findIndex(e => e.id === id);
   if (idx > -1) {
@@ -277,21 +287,23 @@ window.handleAction = function(id, action) {
       MOCK_EVENTS[idx].status = 'confirmed';
       showNotif('Shift Confirmed!');
     } else {
-      // Remove or mark declined
+      // Remove the declined event from the array
       MOCK_EVENTS.splice(idx, 1); 
       showNotif('Shift Declined');
     }
+    // Re-render the whole dashboard to reflect the change
     render();
   }
 }
 
+// Function to show a temporary confirmation notification
 function showNotif(msg) {
   notif.textContent = msg;
   notif.classList.add('show');
   setTimeout(() => notif.classList.remove('show'), 3000);
 }
 
-// Init
+// Initialization: Load the mock data and render the dashboard on page load
 render();
 
 </script>
