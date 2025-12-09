@@ -166,8 +166,41 @@
 
 <script>
 // --- Mock Data ---
-// Started empty as requested
-const MOCK_EVENTS = [];
+// Populated with 2 Pending and 2 Confirmed events
+const MOCK_EVENTS = [
+  {
+    id: 1,
+    title: "Project Alpha Kickoff",
+    date: "2023-11-15",
+    time: "09:00 AM - 10:30 AM",
+    location: "Main Conference Room",
+    status: "pending"
+  },
+  {
+    id: 2,
+    title: "Client Sync: TechCorp",
+    date: "2023-11-16",
+    time: "02:00 PM - 03:00 PM",
+    location: "Zoom Meeting",
+    status: "pending"
+  },
+  {
+    id: 3,
+    title: "Weekly Team Standup",
+    date: "2023-11-13",
+    time: "10:00 AM - 10:30 AM",
+    location: "Huddle Area B",
+    status: "confirmed"
+  },
+  {
+    id: 4,
+    title: "Q4 Strategy Workshop",
+    date: "2023-11-20",
+    time: "01:00 PM - 04:00 PM",
+    location: "Auditorium",
+    status: "confirmed"
+  }
+];
 
 // --- DOM Elements ---
 const pendingContainer = document.getElementById('pendingContainer');
@@ -218,7 +251,7 @@ function render() {
       <div class="event-row">
         <div class="date-box">
           <div class="date-day">${evt.date.split('-')[2]}</div>
-          <div class="date-month">OCT</div> <!-- Mocked month -->
+          <div class="date-month">NOV</div> <!-- Mocked month -->
         </div>
         <div class="event-info" style="flex:1;">
           <h4>${evt.title}</h4>
