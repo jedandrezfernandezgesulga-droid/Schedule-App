@@ -1,0 +1,672 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width,initial-scale=1" />
+<title>ScheduleApp — Member Assignment System</title>
+<script src="https://cdn.tailwindcss.com"></script>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+<style>
+  :root{ --bg:#0f1115; --card:#111319; --muted:#9aa3b2; --accent:#6ee7ff; --accent-2:#7c5cff; --danger:#ff6b6b; --success:#10b981; --glass: rgba(255,255,255,0.04); --radius:12px; --glass-2: rgba(255,255,255,0.03); }
+  *{box-sizing:border-box;margin:0;padding:0;font-family:Inter,ui-sans-serif,system-ui,-apple-system,"Segoe UI",Roboto,"Helvetica Neue",Arial;}
+  
+  html,body{height:100%;background:linear-gradient(180deg,#0c0d10 0%, #0f1115 100%);color:#e6eef6;-webkit-font-smoothing:antialiased;}
+  .wrap{max-width:1200px;margin:28px auto;padding:24px;}
+  
+  /* HEADER & NAV */
+  header{display:flex;justify-content:space-between;align-items:center;margin-bottom:24px; padding-bottom:16px; border-bottom:1px solid var(--glass);}
+  .brand{display:flex;gap:14px;align-items:center}
+  .logo{width:40px;height:40px;border-radius:10px;background:linear-gradient(135deg,var(--accent),var(--accent-2));display:flex;align-items:center;justify-content:center;box-shadow:0 6px 20px rgba(124,92,255,0.12);color:#061426;font-weight:700;font-size:16px;}
+  h1{font-size:18px;font-weight:700;letter-spacing:-0.5px}
+  .sub{color:var(--muted);font-size:12px}
+  .controls{display:flex;gap:12px;align-items:center}
+  
+  /* BUTTONS */
+  .btn{background:#18181b; border:1px solid var(--glass-2); color:var(--muted); padding:9px 16px; border-radius:10px; cursor:pointer; font-weight:600; font-size:13px; display:inline-flex; gap:8px; align-items:center; transition:all .15s ease; white-space:nowrap;}
+  .btn:hover{background:#27272a; color:white; border-color:rgba(255,255,255,0.1);}
+  .btn.primary{background:linear-gradient(90deg,var(--accent),var(--accent-2));color:#061426;border:none;box-shadow:0 4px 15px rgba(124,92,255,0.15);} 
+  .btn.primary:hover{transform:translateY(-1px); box-shadow:0 6px 20px rgba(124,92,255,0.25);}
+  .btn-outline{background:transparent; border:1px solid var(--glass-2); color:var(--muted);}
+  .btn-outline:hover{border-color:var(--danger); color:var(--danger);}
+
+  /* LAYOUT */
+  .grid{display:grid;grid-template-columns:1fr 400px;gap:24px;align-items:start;}
+  .panel{background:var(--card); padding:20px; border-radius:var(--radius); border:1px solid var(--glass); display:flex; flex-direction:column; box-shadow:0 4px 20px rgba(0,0,0,0.2);}
+  
+  /* LIST AREA */
+  .search-row{display:flex;gap:12px;margin-bottom:16px; align-items:center;} 
+  .search-row input{flex:1;padding:12px;border-radius:10px;border:1px solid var(--glass-2);background:rgba(0,0,0,0.2);color:inherit;font-size:14px; transition:border-color 0.2s;}
+  .search-row input:focus{border-color:var(--accent-2);}
+  
+  .list{display:flex;flex-direction:column;gap:10px;max-height:65vh;overflow-y:auto;padding-right:6px}
+  .card{display:flex;gap:16px;align-items:center;padding:16px;border-radius:12px;background:rgba(255,255,255,0.015);border:1px solid rgba(255,255,255,0.02);transition:all .15s ease;}
+  .card:hover{background:rgba(255,255,255,0.03); border-color:rgba(255,255,255,0.05); transform:translateX(2px);}
+  .meta{flex:1} .meta h3{font-size:15px;font-weight:600;margin-bottom:4px;color:white;} .meta p{color:var(--muted);font-size:13px;line-height:1.4; display:flex; align-items:center; gap:8px;}
+  .card-actions{display:flex;gap:4px} .icon-btn{width:32px;height:32px;display:flex;align-items:center;justify-content:center;background:transparent;border-radius:8px;cursor:pointer;color:var(--muted); transition:all 0.2s;} .icon-btn:hover{background:rgba(255,255,255,0.05); color:white;} .icon-btn.edit:hover{color:var(--accent);} .icon-btn.delete:hover{color:var(--danger); background:rgba(255,107,107,0.1);}
+  
+  /* EVENT SETUP PANEL */
+  .stats .stat { background:var(--card); padding:20px; border-radius:var(--radius); border:1px solid var(--glass); margin-bottom: 20px; }
+  .setup-header {font-size:12px; font-weight:700; color:var(--accent-2); text-transform:uppercase; letter-spacing:1px; margin-bottom:16px; border-bottom:1px solid var(--glass); padding-bottom:8px;}
+  
+  .form-group { margin-bottom: 12px; }
+  .form-control { width:100%; padding:10px 12px; border-radius:8px; border:1px solid var(--glass-2); background:rgba(0,0,0,0.3); color:#e6eef6; font-size:14px; transition:0.2s; outline:none; }
+  .form-control:focus { border-color:var(--accent); background:rgba(0,0,0,0.5); }
+  .form-row{display:flex;gap:10px; width:100%;}
+  
+  /* Fix for Calendar/Time Icons color */
+  input[type="date"]::-webkit-calendar-picker-indicator,
+  input[type="time"]::-webkit-calendar-picker-indicator {
+    filter: invert(1);
+    cursor: pointer;
+    opacity: 0.7;
+  }
+  input[type="date"]::-webkit-calendar-picker-indicator:hover,
+  input[type="time"]::-webkit-calendar-picker-indicator:hover {
+    opacity: 1;
+  }
+  
+  /* Option Blocks */
+  .option-block { background:rgba(255,255,255,0.02); border:1px solid var(--glass); border-radius:10px; padding:12px; margin-bottom:12px; }
+  .option-title { font-size:11px; font-weight:700; color:var(--muted); text-transform:uppercase; margin-bottom:8px; display:block; }
+  
+  /* UPCOMING EVENTS LIST */
+  .event-item { padding:12px; border-radius:10px; background:rgba(255,255,255,0.02); border:1px solid var(--glass-2); margin-bottom:8px; transition:0.2s; cursor:pointer;}
+  .event-item:hover { background:rgba(255,255,255,0.04); border-color:rgba(255,255,255,0.05); }
+  .event-item.assigned { border-left:3px solid var(--success); }
+  .event-item.unassigned { border-left:3px solid var(--warning); }
+  .event-header { display:flex; justify-content:space-between; align-items:center; }
+  .event-title { font-weight:600; font-size:14px; color:white; }
+  .event-meta { font-size:12px; color:var(--muted); margin-top:2px; }
+  .event-details { display:none; margin-top:12px; padding-top:12px; border-top:1px solid var(--glass-2); font-size:13px; color:var(--muted); animation:fadeIn 0.2s; }
+  .event-item.expanded .event-details { display:block; }
+
+  /* MODAL */
+  .modal-backdrop{position:fixed;inset:0;background:rgba(0,0,0,0.85);backdrop-filter:blur(4px);display:flex;align-items:center;justify-content:center;z-index:100;opacity:0;pointer-events:none;transition:opacity .2s}
+  .modal{width:100%;max-width:600px;background:#18181b;padding:24px;border-radius:16px;border:1px solid var(--glass);box-shadow:0 20px 50px rgba(0,0,0,0.5); transform:scale(0.95); transition:transform 0.2s;}
+  .modal-backdrop.show{opacity:1;pointer-events:auto} .modal-backdrop.show .modal{transform:scale(1);}
+  .modal-title { font-size:20px; font-weight:700; margin-bottom:20px; color:white; }
+  .modal-footer{display:flex;justify-content:flex-end;gap:10px;margin-top:24px; padding-top:16px; border-top:1px solid var(--glass);}
+
+  /* DAY CARDS IN MODAL */
+  .day-card { background:rgba(255,255,255,0.02); border:1px solid var(--glass-2); border-radius:8px; padding:12px; margin-bottom:8px; }
+  .day-header { display:flex; justify-content:space-between; align-items:center; cursor:pointer; }
+  .day-label { font-weight:600; font-size:14px; color:white; }
+  .day-hours { font-size:12px; color:var(--accent); font-weight:500; margin-left:8px; }
+  .range-list { margin-top:12px; display:none; flex-direction:column; gap:8px; }
+  .day-card.open .range-list { display:flex; }
+  .btn-add-range { width:100%; padding:8px; border-radius:6px; border:1px dashed var(--glass); color:var(--muted); font-size:12px; cursor:pointer; background:transparent; transition:0.2s; }
+  .btn-add-range:hover { border-color:var(--accent); color:var(--accent); background:rgba(110, 231, 255, 0.05); }
+
+  /* UTILS */
+  .avail-badge { font-size:11px; background:rgba(124, 92, 255, 0.1); padding:2px 8px; border-radius:12px; color:var(--accent-2); font-weight:600; }
+  .text-danger { color: var(--danger); }
+  .text-success { color: var(--success); }
+  
+  /* NOTIFICATION */
+  #notification { position: fixed; bottom: 30px; right: 30px; z-index: 200; padding: 14px 24px; border-radius: 12px; font-weight: 500; color: white; transform: translateY(100px); transition: transform 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275); opacity:0; box-shadow: 0 10px 30px rgba(0,0,0,0.5); }
+  #notification.show { transform: translateY(0); opacity:1; }
+  .note-success { background: #064e3b; border:1px solid #10b981; }
+  .note-error { background: #450a0a; border:1px solid #ff6b6b; }
+  .note-info { background: #1e1b4b; border:1px solid #6366f1; }
+
+  @keyframes fadeIn { from{opacity:0;transform:translateY(-5px)} to{opacity:1;transform:translateY(0)} }
+  @media(max-width:900px){ .grid{grid-template-columns:1fr;} }
+</style>
+</head>
+<body>
+<div id="notification"></div>
+
+<div class="wrap">
+  <!-- HEADER -->
+  <header>
+    <div class="brand">
+      <div class="logo">SA</div>
+      <div>
+        <h1>ScheduleApp</h1>
+        <div class="sub">Member Management Dashboard</div>
+      </div>
+    </div>
+    <div class="controls">
+      <button class="btn" id="refreshBtn" title="Reload Data">⟳ Refresh</button>
+      <button class="btn btn-outline" onclick="window.location.href='login.html'" title="Exit Dashboard">Logout</button>
+      <button class="btn primary" id="openAdd" title="Add New Member">
+        <span>＋</span> New Member
+      </button>
+    </div>
+  </header>
+
+  <main class="grid">
+    <!-- LEFT PANEL: MEMBER LIST -->
+    <section class="panel">
+      <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:16px">
+        <div style="font-weight:700; font-size:16px;">Team Roster</div>
+        <div class="sub" id="countText">0 members</div>
+      </div>
+
+      <div class="search-row">
+        <input id="search" placeholder="🔍 Search members..." />
+      </div>
+
+      <div class="list" id="listArea">
+        <div class="empty">Loading members...</div>
+      </div>
+    </section>
+
+    <!-- RIGHT PANEL: EVENT CONTROLS -->
+    <aside class="stats">
+      <div class="stat">
+          <div class="setup-header">Create New Event</div>
+          
+          <div class="form-group">
+            <input class="form-control" type="text" id="eventTitle" placeholder="Event Title (e.g., Weekly Sync)" required />
+          </div>
+
+          <div class="form-group">
+            <input class="form-control" type="text" id="eventAddress" placeholder="📍 Location (Optional)" />
+          </div>
+          
+          <div class="form-group">
+            <textarea class="form-control" id="eventNotes" placeholder="Notes / Agenda..." rows="2" style="resize:vertical; min-height:60px;"></textarea>
+          </div>
+          
+          <div class="form-row" style="margin-bottom:8px;">
+              <input class="form-control" type="date" id="eventDate" required />
+          </div>
+          <div class="form-row">
+              <input class="form-control" type="time" id="eventStartTime" value="09:00" required />
+              <input class="form-control" type="time" id="eventEndTime" value="12:00" required />
+          </div>
+          <div id="durationPreview" class="sub" style="text-align:right; margin-top:4px; margin-bottom:16px; color:var(--accent);">3 Hours</div>
+          
+          <!-- ASSIGNMENT OPTIONS -->
+          <div class="option-block">
+            <span class="option-title">Option 1: Auto-Assign</span>
+            <div class="form-row" style="align-items:center;">
+               <span class="sub" style="white-space:nowrap;">Need:</span>
+               <input class="form-control" type="number" id="requiredMembers" min="1" value="1" style="width:70px; text-align:center;" />
+               <button class="btn primary" id="autoAssignBtn" style="flex:1; justify-content:center;">
+                  🤖 Auto-Match
+               </button>
+            </div>
+          </div>
+
+          <div class="option-block">
+            <span class="option-title">Option 2: Manual Select</span>
+            <div class="form-row">
+               <select class="form-control" id="manualSelect">
+                  <option value="">Choose Member...</option>
+               </select>
+               <button class="btn" id="manualAssignBtn" style="border-color:var(--success); color:var(--success);">
+                  Assign
+               </button>
+            </div>
+          </div>
+
+          <button class="btn" id="saveEventOnlyBtn" style="width:100%; justify-content:center; margin-top:8px;">
+              Save Draft (No Assign)
+          </button>
+
+          <div id="assignmentResult" style="margin-top:12px; font-size:13px;"></div>
+      </div>
+
+      <!-- UPCOMING LIST -->
+      <div style="margin-top:24px;">
+        <div class="setup-header" style="border-bottom:none; margin-bottom:12px;">Upcoming Schedule</div>
+        <div id="eventsList">
+           <p class="sub" style="text-align:center; padding:20px;">No events scheduled.</p>
+        </div>
+      </div>
+    </aside>
+  </main>
+</div>
+
+<!-- MEMBER MODAL -->
+<div class="modal-backdrop" id="modalWrap">
+  <div class="modal">
+    <div class="modal-title" id="modalTitle">Member Profile</div>
+
+    <div class="form-group">
+      <label class="sub" style="margin-bottom:4px; display:block;">Full Name</label>
+      <input class="form-control" id="memberName" type="text" placeholder="e.g. Jane Doe" />
+    </div>
+
+    <div class="form-group">
+      <label class="sub" style="margin-bottom:4px; display:block;">Email Address</label>
+      <input class="form-control" id="memberEmail" type="email" placeholder="jane@example.com" />
+    </div>
+    
+    <div style="margin:20px 0 12px 0; border-top:1px solid var(--glass); padding-top:16px;">
+        <div style="font-weight:600; color:white; font-size:14px; margin-bottom:4px;">Weekly Availability</div>
+        <div class="sub">Define when this member is free to work.</div>
+    </div>
+    
+    <div id="daysContainer" style="max-height:300px; overflow-y:auto; padding-right:4px;">
+      <!-- JS populates days here -->
+    </div>
+    
+    <div class="modal-footer">
+      <button class="btn" id="cancelBtn">Cancel</button>
+      <button class="btn primary" id="saveBtn">Save & Close</button>
+    </div>
+  </div>
+</div>
+
+<script>
+(() => {
+  // --- STATE ---
+  let MEMBER_DATA = []; 
+  let EVENT_DATA = []; 
+  let NEXT_MEMBER_ID = 1;
+  let NEXT_EVENT_ID = 1;
+  let editingId = null;
+
+  // --- MOCK API ---
+  async function mockApiClient(type, method, id, payload) {
+      await new Promise(r => setTimeout(r, 50)); // Simulating network
+      if (type === 'MEMBER') {
+          if (method === 'GET') return { success: true, data: MEMBER_DATA };
+          if (method === 'POST') {
+              const newId = 'm' + NEXT_MEMBER_ID++;
+              const newMember = { ...payload, id: newId };
+              MEMBER_DATA.push(newMember);
+              return { success: true, data: newMember };
+          }
+          if (method === 'PUT') {
+              const index = MEMBER_DATA.findIndex(m => m.id === id);
+              if (index === -1) return { success: false, message: 'Not found' };
+              MEMBER_DATA[index] = { ...MEMBER_DATA[index], ...payload };
+              return { success: true, data: MEMBER_DATA[index] };
+          }
+          if (method === 'DELETE') {
+              MEMBER_DATA = MEMBER_DATA.filter(m => m.id !== id);
+              return { success: true, message: 'Deleted' };
+          }
+      }
+      if (type === 'EVENT') { 
+          if (method === 'GET') return { success: true, data: EVENT_DATA };
+          if (method === 'POST') {
+              const newId = 'e' + NEXT_EVENT_ID++;
+              const newEvent = { ...payload, id: newId };
+              EVENT_DATA.unshift(newEvent); 
+              return { success: true, data: newEvent };
+          }
+          if (method === 'PUT') {
+              const idx = EVENT_DATA.findIndex(e => e.id === id);
+              if (idx === -1) return { success: false };
+              EVENT_DATA[idx] = { ...EVENT_DATA[idx], ...payload };
+              return { success: true, data: EVENT_DATA[idx] };
+          }
+          if (method === 'DELETE') {
+              EVENT_DATA = EVENT_DATA.filter(e => e.id !== id);
+              return { success: true, message: 'Deleted' };
+          }
+      }
+      return { success: false };
+  }
+
+  // --- HELPERS ---
+  const getDayKey = (d) => ['sun','mon','tue','wed','thu','fri','sat'][new Date(d).getDay()];
+  const escapeHtml = (t) => t ? t.replace(/[&<>"']/g, m => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[m])) : '';
+  
+  function timeToMin(t) {
+      if (!t) return null;
+      const [h, m] = t.split(':').map(Number);
+      return (h * 60) + m;
+  }
+
+  function calcWeeklyHours(avail) {
+      if (!avail) return 0;
+      let total = 0;
+      Object.values(avail).forEach(ranges => {
+          if(!Array.isArray(ranges)) return;
+          ranges.forEach(r => {
+             const s = timeToMin(r.start);
+             const e = timeToMin(r.end);
+             if(s!=null && e!=null && e > s) total += (e-s)/60;
+          });
+      });
+      return total;
+  }
+
+  // --- DOM ---
+  const els = {
+     list: document.getElementById('listArea'),
+     search: document.getElementById('search'),
+     count: document.getElementById('countText'),
+     modal: document.getElementById('modalWrap'),
+     modalTitle: document.getElementById('modalTitle'),
+     mName: document.getElementById('memberName'),
+     mEmail: document.getElementById('memberEmail'),
+     days: document.getElementById('daysContainer'),
+     notif: document.getElementById('notification'),
+     
+     // Event Form
+     eTitle: document.getElementById('eventTitle'),
+     eAddr: document.getElementById('eventAddress'),
+     eNotes: document.getElementById('eventNotes'),
+     eDate: document.getElementById('eventDate'),
+     eStart: document.getElementById('eventStartTime'),
+     eEnd: document.getElementById('eventEndTime'),
+     eDur: document.getElementById('durationPreview'),
+     eReq: document.getElementById('requiredMembers'),
+     eRes: document.getElementById('assignmentResult'),
+     eList: document.getElementById('eventsList'),
+     
+     // Selects
+     manSel: document.getElementById('manualSelect'),
+  };
+
+  const DAYS = ['mon','tue','wed','thu','fri','sat','sun'];
+  const DAY_NAMES = {mon:'Monday',tue:'Tuesday',wed:'Wednesday',thu:'Thursday',fri:'Friday',sat:'Saturday',sun:'Sunday'};
+
+  // --- NOTIFICATIONS ---
+  function notify(msg, type='info') {
+      els.notif.textContent = msg;
+      els.notif.className = `note-${type}`;
+      els.notif.classList.add('show');
+      setTimeout(() => els.notif.classList.remove('show'), 3000);
+  }
+
+  // --- MODAL LOGIC ---
+  function openModal(mode='add', item=null) {
+      els.modal.classList.add('show');
+      editingId = mode === 'edit' ? item.id : null;
+      els.modalTitle.textContent = mode === 'add' ? 'Register New Member' : 'Edit Member Profile';
+      
+      els.mName.value = item ? item.name : '';
+      els.mEmail.value = item ? item.email : '';
+      
+      renderDays(item ? item.availability : {});
+  }
+  
+  function closeModal() { els.modal.classList.remove('show'); }
+  
+  document.getElementById('openAdd').onclick = () => openModal('add');
+  document.getElementById('cancelBtn').onclick = closeModal;
+  document.getElementById('saveBtn').onclick = saveMember;
+  els.modal.onclick = (e) => { if(e.target===els.modal) closeModal(); };
+
+  function renderDays(avail={}) {
+      els.days.innerHTML = '';
+      DAYS.forEach(d => {
+          const ranges = avail[d] || [];
+          const card = document.createElement('div');
+          card.className = `day-card ${ranges.length > 0 ? 'open' : ''}`;
+          
+          let hoursTxt = '';
+          if(ranges.length > 0) {
+              let min = 0;
+              ranges.forEach(r => { 
+                  const s = timeToMin(r.start); const e = timeToMin(r.end);
+                  if(s!=null && e!=null && e>s) min += (e-s);
+              });
+              hoursTxt = `${(min/60).toFixed(1)} hrs`;
+          }
+
+          card.innerHTML = `
+             <div class="day-header">
+                <div>
+                   <span class="day-label">${DAY_NAMES[d]}</span>
+                   <span class="day-hours">${hoursTxt}</span>
+                </div>
+                <div class="sub">▼</div>
+             </div>
+             <div class="range-list"></div>
+             <div class="range-list" style="margin-top:8px;">
+                <button type="button" class="btn-add-range">＋ Add Shift Time</button>
+             </div>
+          `;
+          
+          const list = card.querySelector('.range-list');
+          const addBtn = card.querySelector('.btn-add-range');
+          const header = card.querySelector('.day-header');
+          
+          // Populate existing
+          if(ranges.length === 0 && d !== 'sat' && d !== 'sun') {
+              // Auto-add one empty slot for weekdays if empty (UX choice)
+              // ranges.push({start:'', end:''}); 
+          }
+          
+          ranges.forEach(r => list.appendChild(createRangeRow(r.start, r.end)));
+
+          addBtn.onclick = () => { list.appendChild(createRangeRow()); card.classList.add('open'); };
+          header.onclick = () => card.classList.toggle('open');
+          
+          els.days.appendChild(card);
+      });
+  }
+
+  function createRangeRow(s='', e='') {
+      const row = document.createElement('div');
+      row.className = 'form-row';
+      row.style.marginBottom = '0';
+      row.innerHTML = `
+         <input type="time" class="form-control" value="${s}">
+         <input type="time" class="form-control" value="${e}">
+         <button class="icon-btn delete" style="width:40px; border:1px solid var(--glass-2); border-radius:8px;">✕</button>
+      `;
+      row.querySelector('.delete').onclick = () => row.remove();
+      return row;
+  }
+
+  async function saveMember() {
+      const name = els.mName.value.trim();
+      const email = els.mEmail.value.trim();
+      if(!name) return notify('Name is required', 'error');
+
+      const avail = {};
+      Array.from(els.days.children).forEach((card, idx) => {
+          const d = DAYS[idx];
+          const rows = card.querySelectorAll('.range-list .form-row');
+          const ranges = [];
+          rows.forEach(r => {
+             const inputs = r.querySelectorAll('input');
+             if(inputs[0].value && inputs[1].value) {
+                 ranges.push({start: inputs[0].value, end: inputs[1].value});
+             }
+          });
+          if(ranges.length > 0) avail[d] = ranges;
+      });
+
+      const payload = { name, email, availability: avail };
+      const res = await mockApiClient('MEMBER', editingId ? 'PUT' : 'POST', editingId, payload);
+      
+      if(res.success) {
+          notify(editingId ? 'Member updated' : 'Member registered', 'success');
+          closeModal();
+          refreshAll();
+      }
+  }
+
+  // --- EVENTS & ASSIGNMENT ---
+  function updateDur() {
+      const s = timeToMin(els.eStart.value);
+      const e = timeToMin(els.eEnd.value);
+      if(s!=null && e!=null && e > s) {
+          els.eDur.textContent = `${((e-s)/60).toFixed(1)} Hours`;
+          els.eDur.style.color = 'var(--accent)';
+      } else {
+          els.eDur.textContent = 'Invalid Times';
+          els.eDur.style.color = 'var(--danger)';
+      }
+  }
+  els.eStart.onchange = updateDur; els.eEnd.onchange = updateDur;
+
+  async function saveEvent(assigned=[]) {
+     const title = els.eTitle.value.trim();
+     if(!title) return notify('Event title required', 'error');
+     
+     const payload = {
+         title,
+         address: els.eAddr.value,
+         notes: els.eNotes.value,
+         date: els.eDate.value,
+         startTime: els.eStart.value,
+         endTime: els.eEnd.value,
+         requiredMembers: parseInt(els.eReq.value) || 1,
+         assignedMembers: assigned,
+         isAssigned: assigned.length > 0
+     };
+
+     const res = await mockApiClient('EVENT', 'POST', null, payload);
+     if(res.success) {
+         notify('Event created successfully', 'success');
+         // Reset form
+         els.eTitle.value = ''; els.eNotes.value = ''; els.eAddr.value = '';
+         els.eRes.innerHTML = '';
+         refreshAll();
+     }
+  }
+
+  document.getElementById('saveEventOnlyBtn').onclick = () => saveEvent([]);
+  
+  document.getElementById('manualAssignBtn').onclick = () => {
+      const mid = els.manSel.value;
+      if(!mid) return notify('Select a member first', 'error');
+      const mem = MEMBER_DATA.find(m => m.id === mid);
+      if(mem) saveEvent([{id: mem.id, name: mem.name}]);
+  };
+
+  document.getElementById('autoAssignBtn').onclick = async () => {
+      const date = els.eDate.value;
+      const s = timeToMin(els.eStart.value);
+      const e = timeToMin(els.eEnd.value);
+      const req = parseInt(els.eReq.value) || 1;
+      
+      if(!date) return notify('Select a date first', 'error');
+
+      // Fetch fresh data
+      await refreshAll(); 
+      const dayKey = getDayKey(date);
+      
+      // Algorithm
+      const valid = MEMBER_DATA.filter(m => {
+          const ranges = (m.availability || {})[dayKey] || [];
+          return ranges.some(r => {
+              const rs = timeToMin(r.start); const re = timeToMin(r.end);
+              return rs <= s && re >= e;
+          });
+      });
+
+      if(valid.length === 0) {
+          els.eRes.innerHTML = `<span class="text-danger">No members available on ${DAY_NAMES[dayKey]} at this time.</span>`;
+          return;
+      }
+
+      // Prioritize those with fewer hours? Or random? Taking first N for now
+      const picked = valid.slice(0, req);
+      
+      if(picked.length < req) {
+           els.eRes.innerHTML = `<span class="text-danger">Found only ${picked.length} of ${req} needed.</span>`;
+           // Allow saving anyway?
+           if(confirm(`Only found ${picked.length} members. Assign them anyway?`)) {
+               saveEvent(picked.map(m => ({id:m.id, name:m.name})));
+           }
+      } else {
+           saveEvent(picked.map(m => ({id:m.id, name:m.name})));
+      }
+  };
+
+
+  // --- RENDERING ---
+  async function refreshAll() {
+      // Members
+      const mRes = await mockApiClient('MEMBER', 'GET');
+      if(mRes.success) {
+          const members = mRes.data;
+          els.count.textContent = `${members.length} members`;
+          
+          // Populate list
+          els.list.innerHTML = '';
+          const filter = els.search.value.toLowerCase();
+          
+          members.forEach(m => {
+              if(!m.name.toLowerCase().includes(filter)) return;
+              
+              const div = document.createElement('div');
+              div.className = 'card';
+              div.innerHTML = `
+                 <div class="meta">
+                    <h3>${escapeHtml(m.name)}</h3>
+                    <p>
+                       <span class="avail-badge">${calcWeeklyHours(m.availability).toFixed(1)}h / wk</span>
+                       <span style="font-size:12px; opacity:0.7">${escapeHtml(m.email)}</span>
+                    </p>
+                 </div>
+                 <div class="card-actions">
+                    <button class="icon-btn edit">✎</button>
+                    <button class="icon-btn delete">🗑</button>
+                 </div>
+              `;
+              div.querySelector('.edit').onclick = () => openModal('edit', m);
+              div.querySelector('.delete').onclick = async () => {
+                  if(confirm('Remove this member?')) {
+                      await mockApiClient('MEMBER', 'DELETE', m.id);
+                      refreshAll();
+                  }
+              };
+              els.list.appendChild(div);
+          });
+
+          // Populate Select
+          els.manSel.innerHTML = '<option value="">Choose Member...</option>';
+          members.forEach(m => {
+             const opt = document.createElement('option');
+             opt.value = m.id; opt.textContent = m.name;
+             els.manSel.appendChild(opt);
+          });
+      }
+
+      // Events
+      const eRes = await mockApiClient('EVENT', 'GET');
+      if(eRes.success) {
+          const events = eRes.data;
+          els.eList.innerHTML = '';
+          if(events.length === 0) els.eList.innerHTML = '<p class="sub" style="text-align:center; padding:20px;">No events scheduled.</p>';
+          
+          events.forEach(ev => {
+              const div = document.createElement('div');
+              div.className = `event-item ${ev.isAssigned ? 'assigned' : 'unassigned'}`;
+              const count = ev.assignedMembers.length;
+              div.innerHTML = `
+                 <div class="event-header">
+                    <div>
+                       <div class="event-title">${escapeHtml(ev.title)}</div>
+                       <div class="event-meta">${ev.date} @ ${ev.startTime}</div>
+                    </div>
+                    <div style="text-align:right;">
+                       <span class="sub" style="color:${ev.isAssigned ? 'var(--success)' : 'var(--warning)'}">
+                          ${ev.isAssigned ? `${count} Assigned` : 'Pending'}
+                       </span>
+                    </div>
+                 </div>
+                 <div class="event-details">
+                    <p><strong>Loc:</strong> ${escapeHtml(ev.address||'-')}</p>
+                    <p><strong>Team:</strong> ${ev.assignedMembers.map(m=>m.name).join(', ') || 'None'}</p>
+                    <button class="btn-outline" style="width:100%; margin-top:8px; font-size:11px; padding:4px;">Delete Event</button>
+                 </div>
+              `;
+              div.onclick = (e) => {
+                  if(e.target.tagName !== 'BUTTON') div.classList.toggle('expanded');
+              };
+              div.querySelector('button').onclick = async () => {
+                  if(confirm('Delete event?')) {
+                      await mockApiClient('EVENT', 'DELETE', ev.id);
+                      refreshAll();
+                  }
+              };
+              els.eList.appendChild(div);
+          });
+      }
+  }
+
+  els.search.oninput = refreshAll;
+  document.getElementById('refreshBtn').onclick = refreshAll;
+  
+  // Init
+  refreshAll();
+
+})();
+</script>
+</body>
+</html>

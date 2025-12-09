@@ -1,0 +1,266 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width,initial-scale=1" />
+<title>My Portal — ScheduleApp</title>
+<script src="https://cdn.tailwindcss.com"></script>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+<style>
+  /* --- Shared Design System --- */
+  :root{ --bg:#0f1115; --card:#111319; --muted:#9aa3b2; --accent:#6ee7ff; --accent-2:#7c5cff; --danger:#ff6b6b; --success:#10b981; --warning:#facc15; --glass: rgba(255,255,255,0.04); --radius:12px; --glass-2: rgba(255,255,255,0.03); }
+  *{box-sizing:border-box;margin:0;padding:0;font-family:Inter,ui-sans-serif,system-ui,-apple-system,"Segoe UI",Roboto,"Helvetica Neue",Arial;}
+  
+  html,body{ height:100%; background:linear-gradient(180deg,#0c0d10 0%, #0f1115 100%); color:#e6eef6; -webkit-font-smoothing:antialiased; }
+  
+  .wrap{ max-width:1200px; margin:0 auto; padding:24px; }
+  
+  /* --- Header --- */
+  header{ display:flex; justify-content:space-between; align-items:center; margin-bottom:32px; padding-bottom:20px; border-bottom:1px solid var(--glass); }
+  .brand{ display:flex; gap:12px; align-items:center; }
+  .logo{ width:40px; height:40px; border-radius:10px; background:linear-gradient(135deg,var(--accent),var(--accent-2)); display:flex; align-items:center; justify-content:center; color:#061426; font-weight:700; font-size:16px; }
+  .user-badge{ display:flex; align-items:center; gap:12px; background:var(--glass); padding:6px 16px; border-radius:30px; border:1px solid var(--glass-2); }
+  .avatar{ width:32px; height:32px; border-radius:50%; background:#2d3748; display:flex; align-items:center; justify-content:center; font-size:12px; color:white; font-weight:bold; }
+
+  /* --- Grid Layout --- */
+  .dashboard-grid { display:grid; grid-template-columns: 2fr 1fr; gap:24px; }
+  @media(max-width:900px){ .dashboard-grid{ grid-template-columns:1fr; } }
+
+  /* --- Cards --- */
+  .panel{ background:linear-gradient(180deg,var(--card), #0c0d10); border-radius:var(--radius); border:1px solid var(--glass); overflow:hidden; display:flex; flex-direction:column; box-shadow:0 4px 20px rgba(0,0,0,0.2); }
+  .panel-header{ padding:20px; border-bottom:1px solid var(--glass); display:flex; justify-content:space-between; align-items:center; background:rgba(255,255,255,0.01); }
+  .panel-title{ font-weight:600; font-size:16px; display:flex; align-items:center; gap:8px; }
+  .panel-body{ padding:20px; }
+
+  /* --- Action Items (Pending) --- */
+  .invite-card { background:rgba(124, 92, 255, 0.05); border:1px solid rgba(124, 92, 255, 0.1); border-radius:10px; padding:20px; margin-bottom:16px; display:flex; flex-direction:column; gap:16px; animation: slideIn 0.3s ease; }
+  .invite-header { display:flex; justify-content:space-between; align-items:flex-start; }
+  .invite-title { font-size:18px; font-weight:600; margin-bottom:4px; color:white; }
+  .invite-meta { color:var(--muted); font-size:14px; display:flex; gap:16px; align-items:center; }
+  .invite-actions { display:flex; gap:12px; margin-top:4px; }
+  
+  .btn { padding:10px 20px; border-radius:8px; font-weight:600; font-size:14px; cursor:pointer; border:none; transition:all 0.2s; flex:1; display:flex; justify-content:center; align-items:center; gap:8px; }
+  .btn-accept { background:var(--success); color:#003320; }
+  .btn-accept:hover { filter:brightness(1.1); transform:translateY(-1px); }
+  .btn-decline { background:rgba(255, 107, 107, 0.1); color:var(--danger); border:1px solid rgba(255, 107, 107, 0.2); }
+  .btn-decline:hover { background:rgba(255, 107, 107, 0.2); }
+
+  /* --- Confirmed List --- */
+  .event-row { display:flex; gap:16px; padding:16px; border-bottom:1px solid var(--glass); align-items:center; transition:background 0.2s; }
+  .event-row:last-child { border-bottom:none; }
+  .event-row:hover { background:rgba(255,255,255,0.02); }
+  .date-box { background:var(--glass); border-radius:8px; padding:10px; text-align:center; min-width:60px; border:1px solid var(--glass-2); }
+  .date-day { font-size:18px; font-weight:700; color:var(--accent); }
+  .date-month { font-size:11px; text-transform:uppercase; color:var(--muted); font-weight:600; }
+  .event-info h4 { font-size:15px; font-weight:600; margin-bottom:4px; }
+  .event-info p { font-size:13px; color:var(--muted); }
+  .status-badge { font-size:11px; padding:4px 8px; border-radius:4px; background:rgba(16, 185, 129, 0.1); color:var(--success); border:1px solid rgba(16, 185, 129, 0.2); white-space:nowrap; }
+
+  /* --- Stats & Availability --- */
+  .stat-card { background:linear-gradient(135deg, rgba(255,255,255,0.03), rgba(255,255,255,0.01)); padding:20px; border-radius:12px; margin-bottom:20px; border:1px solid var(--glass); }
+  .stat-val { font-size:28px; font-weight:700; color:white; margin:8px 0; }
+  .stat-label { font-size:13px; color:var(--muted); text-transform:uppercase; letter-spacing:0.5px; }
+  
+  .avail-grid { display:grid; grid-template-columns:repeat(7, 1fr); gap:4px; margin-top:12px; }
+  .avail-day { text-align:center; font-size:11px; color:var(--muted); padding:6px; border-radius:6px; background:rgba(255,255,255,0.02); }
+  .avail-day.active { background:rgba(110, 231, 255, 0.1); color:var(--accent); border:1px solid rgba(110, 231, 255, 0.2); }
+
+  @keyframes slideIn { from{opacity:0; transform:translateY(10px);} to{opacity:1; transform:translateY(0);} }
+  .empty-state { text-align:center; padding:40px; color:var(--muted); font-size:14px; font-style:italic; }
+  
+  #notification { position: fixed; bottom: 20px; right: 20px; padding: 12px 20px; background: var(--card); border: 1px solid var(--accent); border-radius: 8px; transform: translateY(100px); transition: transform 0.3s; z-index: 100; box-shadow: 0 10px 30px rgba(0,0,0,0.5); }
+  #notification.show { transform: translateY(0); }
+</style>
+</head>
+<body>
+
+<div id="notification">Action Completed</div>
+
+<div class="wrap">
+  <!-- Header -->
+  <header>
+    <div class="brand">
+      <div class="logo">SA</div>
+      <div>
+        <h1 style="font-size:18px; font-weight:700;">Member Portal</h1>
+        <div style="font-size:12px; color:var(--muted);">Welcome back, <span id="userName">User</span></div>
+      </div>
+    </div>
+    <div class="user-badge">
+      <div class="avatar">U</div>
+      <span style="font-size:13px; font-weight:500;">User</span>
+      <button onclick="window.location.href='login.html'" style="background:none; border:none; color:var(--muted); cursor:pointer; font-size:18px; margin-left:8px;" title="Logout">⏻</button>
+    </div>
+  </header>
+
+  <div class="dashboard-grid">
+    
+    <!-- LEFT COLUMN: Action Items & Schedule -->
+    <div style="display:flex; flex-direction:column; gap:24px;">
+      
+      <!-- PENDING SECTION -->
+      <section class="panel">
+        <div class="panel-header">
+          <div class="panel-title">
+            <span style="color:var(--warning)">●</span> Action Required
+          </div>
+          <span class="status-badge" style="background:rgba(250, 204, 21, 0.1); color:var(--warning); border-color:rgba(250, 204, 21, 0.2);" id="pendingCount">0 Pending</span>
+        </div>
+        <div class="panel-body" id="pendingContainer">
+          <!-- Populated by JS -->
+          <div class="empty-state">You're all caught up! No pending invites.</div>
+        </div>
+      </section>
+
+      <!-- UPCOMING SECTION -->
+      <section class="panel">
+        <div class="panel-header">
+          <div class="panel-title">📅 My Upcoming Schedule</div>
+        </div>
+        <div class="panel-body" style="padding:0;">
+          <div id="scheduleContainer">
+             <!-- Populated by JS -->
+             <div class="empty-state">No upcoming shifts confirmed.</div>
+          </div>
+        </div>
+      </section>
+
+    </div>
+
+    <!-- RIGHT COLUMN: Stats & Info -->
+    <div>
+      <div class="stat-card">
+        <div class="stat-label">Hours This Week</div>
+        <div class="stat-val">12.5</div>
+        <div style="font-size:12px; color:var(--success);">+2.5 hrs vs last week</div>
+      </div>
+
+      <div class="stat-card">
+        <div class="stat-label">Next Shift In</div>
+        <div class="stat-val" style="color:var(--accent)">2 Days</div>
+        <div style="font-size:12px; color:var(--muted);">Tuesday, 9:00 AM</div>
+      </div>
+
+      <section class="panel">
+        <div class="panel-header">
+          <div class="panel-title" style="font-size:14px;">My Availability</div>
+          <button style="background:none; border:none; color:var(--accent); font-size:12px; cursor:pointer;">Request Change</button>
+        </div>
+        <div class="panel-body">
+          <p style="font-size:13px; color:var(--muted); margin-bottom:12px;">Your standard weekly availability:</p>
+          <div class="avail-grid">
+            <div class="avail-day active">MON<br>9-5</div>
+            <div class="avail-day active">TUE<br>9-5</div>
+            <div class="avail-day active">WED<br>9-1</div>
+            <div class="avail-day">THU<br>-</div>
+            <div class="avail-day active">FRI<br>1-5</div>
+            <div class="avail-day">SAT<br>-</div>
+            <div class="avail-day">SUN<br>-</div>
+          </div>
+        </div>
+      </section>
+    </div>
+
+  </div>
+</div>
+
+<script>
+// --- Mock Data ---
+// Started empty as requested
+const MOCK_EVENTS = [];
+
+// --- DOM Elements ---
+const pendingContainer = document.getElementById('pendingContainer');
+const scheduleContainer = document.getElementById('scheduleContainer');
+const pendingCount = document.getElementById('pendingCount');
+const notif = document.getElementById('notification');
+
+// --- Render Functions ---
+
+function render() {
+  const pending = MOCK_EVENTS.filter(e => e.status === 'pending');
+  const confirmed = MOCK_EVENTS.filter(e => e.status === 'confirmed');
+
+  // Update Badge
+  pendingCount.textContent = `${pending.length} Pending`;
+
+  // Render Pending
+  if (pending.length === 0) {
+    pendingContainer.innerHTML = `<div class="empty-state">You're all caught up! No pending invites.</div>`;
+  } else {
+    pendingContainer.innerHTML = pending.map(evt => `
+      <div class="invite-card" id="card-${evt.id}">
+        <div class="invite-header">
+          <div>
+            <div class="invite-title">${evt.title}</div>
+            <div class="invite-meta">
+              <span>📅 ${formatDate(evt.date)}</span>
+              <span>🕒 ${evt.time}</span>
+            </div>
+            <div class="invite-meta" style="margin-top:8px; font-size:13px;">
+              <span>📍 ${evt.location}</span>
+            </div>
+          </div>
+        </div>
+        <div class="invite-actions">
+          <button class="btn btn-decline" onclick="handleAction(${evt.id}, 'decline')">Decline</button>
+          <button class="btn btn-accept" onclick="handleAction(${evt.id}, 'accept')">Accept & Add to Schedule</button>
+        </div>
+      </div>
+    `).join('');
+  }
+
+  // Render Schedule
+  if (confirmed.length === 0) {
+    scheduleContainer.innerHTML = `<div class="empty-state">No upcoming shifts.</div>`;
+  } else {
+    scheduleContainer.innerHTML = confirmed.map(evt => `
+      <div class="event-row">
+        <div class="date-box">
+          <div class="date-day">${evt.date.split('-')[2]}</div>
+          <div class="date-month">OCT</div> <!-- Mocked month -->
+        </div>
+        <div class="event-info" style="flex:1;">
+          <h4>${evt.title}</h4>
+          <p>${evt.time} • ${evt.location}</p>
+        </div>
+        <div class="status-badge">Confirmed</div>
+      </div>
+    `).join('');
+  }
+}
+
+// --- Logic ---
+
+function formatDate(dateStr) {
+  const options = { weekday: 'long', month: 'short', day: 'numeric' };
+  return new Date(dateStr).toLocaleDateString('en-US', options);
+}
+
+window.handleAction = function(id, action) {
+  const idx = MOCK_EVENTS.findIndex(e => e.id === id);
+  if (idx > -1) {
+    if (action === 'accept') {
+      MOCK_EVENTS[idx].status = 'confirmed';
+      showNotif('Shift Confirmed!');
+    } else {
+      // Remove or mark declined
+      MOCK_EVENTS.splice(idx, 1); 
+      showNotif('Shift Declined');
+    }
+    render();
+  }
+}
+
+function showNotif(msg) {
+  notif.textContent = msg;
+  notif.classList.add('show');
+  setTimeout(() => notif.classList.remove('show'), 3000);
+}
+
+// Init
+render();
+
+</script>
+</body>
+</html>
