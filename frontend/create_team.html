@@ -5,21 +5,27 @@
 <meta name="viewport" content="width=device-width,initial-scale=1" />
 <title>Create Team — ScheduleApp</title>
 <script src="https://cdn.tailwindcss.com"></script>
-<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+<script src="https://unpkg.com/lucide@latest"></script>
 <style>
-  /* --- Shared Design System --- */
-  :root{ --bg:#0f1115; --card:#111319; --muted:#9aa3b2; --accent:#6ee7ff; --accent-2:#7c5cff; --glass: rgba(255,255,255,0.04); --radius:12px; --glass-2: rgba(255,255,255,0.03); }
-  *{box-sizing:border-box;margin:0;padding:0;font-family:Inter,ui-sans-serif,system-ui,-apple-system,"Segoe UI",Roboto,"Helvetica Neue",Arial;}
+  :root{ 
+    --text:#ffffff; 
+    --muted:rgba(255, 255, 255, 0.6); 
+    --accent:#38bdf8; /* Sky Blue */
+    --accent-purple:#c084fc; /* Purple */
+    --glass: rgba(255, 255, 255, 0.05);
+    --border: rgba(255, 255, 255, 0.08);
+    --shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.4);
+  }
   
   html,body{
       height:100%;
-      background:linear-gradient(180deg,#0c0d10 0%, #0f1115 100%);
-      color:#e6eef6;
-      -webkit-font-smoothing:antialiased;
+      background: linear-gradient(135deg, #020617 0%, #111030 50%, #2e1065 100%);
+      color:var(--text);
+      font-family:'Inter', sans-serif;
       overflow-x: hidden;
   }
   
-  /* --- Layout --- */
   .setup-wrap {
       min-height: 100vh;
       display: flex;
@@ -30,36 +36,31 @@
       padding: 20px;
   }
   
-  /* Background Ambient Glow */
   .glow-blob { 
       position: absolute; 
-      width: 800px; 
-      height: 800px; 
-      background: radial-gradient(circle, rgba(124,92,255,0.06) 0%, transparent 60%); 
-      top: -300px; 
-      left: 50%; 
-      transform: translateX(-50%); 
-      pointer-events: none; 
-      z-index: -1; 
+      width: 800px; height: 800px; 
+      background: radial-gradient(circle, rgba(192, 132, 252, 0.1) 0%, transparent 60%); 
+      top: -300px; left: 50%; transform: translateX(-50%); 
+      pointer-events: none; z-index: -1; 
   }
 
-  /* --- Components --- */
-  .logo-lg { 
-      width:60px; height:60px; border-radius:16px; 
-      background:linear-gradient(135deg,var(--accent),var(--accent-2)); 
-      display:flex; align-items:center; justify-content:center; 
-      box-shadow:0 12px 40px rgba(124,92,255,0.25); 
-      color:#061426; font-weight:800; font-size:24px; margin-bottom: 24px;
+  .logo-img { 
+      width: 72px; height: 72px; 
+      border-radius: 18px; 
+      object-fit: contain; 
+      box-shadow: 0 0 30px rgba(56, 189, 248, 0.4);
+      margin-bottom: 32px;
   }
 
   .setup-card {
-      background: linear-gradient(180deg, var(--card), #0c0d10);
-      border: 1px solid var(--glass);
-      border-radius: 20px;
+      background: var(--glass);
+      border: 1px solid var(--border);
+      border-radius: 24px;
       padding: 40px;
       width: 100%;
       max-width: 480px;
-      box-shadow: 0 20px 50px rgba(0,0,0,0.5);
+      box-shadow: var(--shadow);
+      backdrop-filter: blur(16px);
       animation: fadeInUp 0.6s cubic-bezier(0.2, 0.8, 0.2, 1);
   }
 
@@ -69,71 +70,50 @@
       margin-bottom: 8px; display: block;
   }
 
-  h2 { font-size: 24px; font-weight: 700; margin-bottom: 12px; color: white; }
-  p { color: var(--muted); font-size: 14px; line-height: 1.5; margin-bottom: 32px; }
+  h2 { font-size: 28px; font-weight: 800; margin-bottom: 12px; color: white; text-shadow: 0 2px 4px rgba(0,0,0,0.3); }
+  p { color: var(--muted); font-size: 15px; line-height: 1.5; margin-bottom: 32px; }
 
-  /* --- Form Elements --- */
-  .form-group { margin-bottom: 20px; }
-  .label { display: block; font-size: 13px; font-weight: 500; color: #e6eef6; margin-bottom: 8px; }
+  /* Form Elements */
+  .form-group { margin-bottom: 24px; position: relative; }
+  .label { display: block; font-size: 13px; font-weight: 700; color: var(--text); margin-bottom: 8px; }
   
   .input-field {
-      width: 100%;
-      padding: 14px;
-      border-radius: 10px;
+      width: 100%; padding: 14px;
+      border-radius: 12px;
       background: rgba(0,0,0,0.3);
-      border: 1px solid var(--glass-2);
-      color: white;
-      font-size: 14px;
-      transition: all 0.2s;
-      outline: none;
+      border: 1px solid var(--border);
+      color: white; font-size: 14px;
+      transition: all 0.2s; outline: none;
   }
   .input-field:focus {
       border-color: var(--accent);
-      box-shadow: 0 0 0 4px rgba(110, 231, 255, 0.05);
+      box-shadow: 0 0 0 2px rgba(56, 189, 248, 0.1);
       background: rgba(0,0,0,0.5);
   }
 
-  /* --- Button --- */
+  /* Button */
   .btn-create {
-      width: 100%;
-      padding: 14px;
-      border-radius: 10px;
-      background: linear-gradient(90deg, var(--accent), var(--accent-2));
-      color: #061426;
-      font-weight: 600;
-      font-size: 15px;
-      border: none;
-      cursor: pointer;
+      width: 100%; padding: 16px;
+      border-radius: 12px;
+      background: white; color: #000;
+      font-weight: 700; font-size: 15px;
+      border: none; cursor: pointer;
       transition: transform 0.2s, box-shadow 0.2s;
       display: flex; justify-content: center; align-items: center; gap: 8px;
       margin-top: 10px;
+      box-shadow: 0 4px 15px rgba(255,255,255,0.1);
   }
-  .btn-create:hover {
-      transform: translateY(-2px);
-      box-shadow: 0 8px 25px rgba(124, 92, 255, 0.3);
-  }
+  .btn-create:hover { transform: translateY(-2px); opacity: 0.9; }
+  
   .btn-back {
       width: 100%; text-align: center; margin-top: 24px;
       color: var(--muted); font-size: 13px; cursor: pointer;
-      background: none; border: none; text-decoration: underline;
-      text-decoration-color: transparent; transition: text-decoration-color 0.2s;
+      background: none; border: none; transition: 0.2s;
+      display: flex; align-items: center; justify-content: center; gap: 6px;
   }
-  .btn-back:hover { text-decoration-color: var(--muted); }
+  .btn-back:hover { color: white; }
 
   @keyframes fadeInUp { from{opacity:0;transform:translateY(20px)} to{opacity:1;transform:translateY(0)} }
-  
-  /* Loading Spinner */
-  .spinner {
-      border: 3px solid rgba(0,0,0,0.1);
-      border-left-color: #061426;
-      border-radius: 50%;
-      width: 20px; height: 20px;
-      animation: spin 1s linear infinite;
-      display: none;
-  }
-  @keyframes spin { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
-  .btn-create.loading .spinner { display: block; }
-  .btn-create.loading span { display: none; }
 </style>
 </head>
 <body>
@@ -144,7 +124,7 @@
     <!-- Center Card -->
     <div class="setup-card">
         <div style="display:flex; justify-content:center;">
-            <div class="logo-lg">SA</div>
+            <img src="LOGO.png" alt="Logo" class="logo-img">
         </div>
         
         <div style="text-align:center;">
@@ -155,52 +135,67 @@
 
         <form id="createTeamForm" onsubmit="handleCreate(event)">
             <div class="form-group">
-                <label class="label">Team / Organization Name</label>
-                <input class="input-field" type="text" placeholder="e.g. Marketing Squad, Acme Corp" required>
+                <label class="label">Team Name</label>
+                <input class="input-field" type="text" placeholder="e.g. Alpha Squad" required>
             </div>
 
             <div class="form-group">
-                <label class="label">Industry (Optional)</label>
-                <select class="input-field" style="appearance:none;">
-                    <option>Technology</option>
-                    <option>Healthcare</option>
-                    <option>Retail</option>
-                    <option>Education</option>
-                    <option>Other</option>
+                <label class="label">Primary Sector</label>
+                <select id="sectorSelect" class="input-field" style="appearance:none; cursor:pointer;" onchange="toggleCustomSector(this)">
+                    <option value="" disabled selected>Select organizational domain...</option>
+                    <option value="tech">Technology & SaaS</option>
+                    <option value="health">Healthcare & Medical</option>
+                    <option value="retail">Retail & E-commerce</option>
+                    <option value="finance">Finance & Banking</option>
+                    <option value="edu">Education & Academic</option>
+                    <option value="construct">Construction & Engineering</option>
+                    <option value="logistic">Logistics & Supply Chain</option>
+                    <option value="hospitality">Hospitality & Tourism</option>
+                    <option value="nonprofit">Non-Profit & NGO</option>
+                    <option value="gov">Government & Public Sector</option>
+                    <option value="media">Creative & Media</option>
+                    <option value="custom">Other / Custom...</option>
                 </select>
-            </div>
-
-            <div class="form-group">
-                <label class="label">Admin Name</label>
-                <input class="input-field" type="text" placeholder="Your Full Name" required>
+                <i data-lucide="chevron-down" width="16" style="position:absolute; right:14px; top:40px; color:var(--muted); pointer-events:none;"></i>
+                
+                <!-- Hidden Custom Input -->
+                <input type="text" id="customSectorInput" class="input-field" placeholder="Enter your specific sector" style="margin-top: 12px; display: none;">
             </div>
 
             <button type="submit" class="btn-create" id="createBtn">
                 <span>Create Team & Dashboard</span>
-                <div class="spinner"></div>
             </button>
         </form>
 
-        <button class="btn-back" onclick="window.location.href='login.html'">Cancel and go back</button>
+        <button class="btn-back" onclick="window.location.href='user_home.html'">
+            <i data-lucide="arrow-left" width="14"></i> Cancel and go back
+        </button>
     </div>
 </div>
 
 <script>
+    lucide.createIcons();
+
+    function toggleCustomSector(select) {
+        const input = document.getElementById('customSectorInput');
+        if (select.value === 'custom') {
+            input.style.display = 'block';
+            input.focus();
+        } else {
+            input.style.display = 'none';
+        }
+    }
+
     function handleCreate(e) {
         e.preventDefault();
         
         const btn = document.getElementById('createBtn');
-        
-        // Show loading state
-        btn.classList.add('loading');
+        btn.innerHTML = `<i data-lucide="loader-2" class="animate-spin" width="18"></i> Creating...`;
         btn.disabled = true;
+        lucide.createIcons();
 
-        // Simulate API call delay (1.5 seconds)
         setTimeout(() => {
-            // In a real app, you would save the team data here
-            
-            // Redirect to Admin Dashboard
-            window.location.href = 'dashboard.html?role=Admin';
+            window.location.href = 'newteam.html?role=Admin';
         }, 1500);
     }
 </script>
