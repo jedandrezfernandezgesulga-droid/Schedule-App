@@ -3,249 +3,263 @@
 <head>
 <meta charset="utf-8" />
 <meta name="viewport" content="width=device-width,initial-scale=1" />
-<title>Login — ScheduleApp</title>
+<title>Access — ScheduleApp</title>
 <script src="https://cdn.tailwindcss.com"></script>
-<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+<script src="https://unpkg.com/lucide@latest"></script>
 <style>
-  /* --- Shared Design System from Dashboard --- */
-  :root{ --bg:#0f1115; --card:#111319; --muted:#9aa3b2; --accent:#6ee7ff; --accent-2:#7c5cff; --glass: rgba(255,255,255,0.04); --radius:12px; --glass-2: rgba(255,255,255,0.03); }
-  *{box-sizing:border-box;margin:0;padding:0;font-family:Inter,ui-sans-serif,system-ui,-apple-system,"Segoe UI",Roboto,"Helvetica Neue",Arial;}
-  
-  html,body{
-      height:100%;
-      background:linear-gradient(180deg,#0c0d10 0%, #0f1115 100%);
-      color:#e6eef6;
-      -webkit-font-smoothing:antialiased;
-      overflow-x: hidden;
+  :root{ 
+    --text:#ffffff; 
+    --muted:rgba(255, 255, 255, 0.6); 
+    --accent:#38bdf8; /* Sky Blue */
+    --accent-purple:#c084fc; /* Purple */
+    --glass: rgba(255, 255, 255, 0.05);
+    --glass-hover: rgba(255, 255, 255, 0.08);
+    --border: rgba(255, 255, 255, 0.08);
+    --shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.4);
   }
   
-  /* --- Login Specific Layout --- */
-  .login-wrap {
-      min-height: 100vh;
-      display: flex;
-      flex-direction: column;
-      align-items: center;
-      justify-content: center;
-      position: relative;
-      padding: 20px;
+  body{ 
+    background: linear-gradient(135deg, #020617 0%, #111030 50%, #2e1065 100%);
+    color:var(--text); 
+    font-family:'Inter', sans-serif; 
+    height:100vh; 
+    overflow:hidden; 
   }
   
-  /* Background Ambient Glow */
-  .glow-blob { 
-      position: absolute; 
-      width: 800px; 
-      height: 800px; 
-      background: radial-gradient(circle, rgba(124,92,255,0.06) 0%, transparent 60%); 
-      top: -300px; 
-      left: 50%; 
-      transform: translateX(-50%); 
-      pointer-events: none; 
-      z-index: -1; 
+  .auth-container { display: flex; height: 100%; }
+  
+  /* Left Side - Visual */
+  .visual-side { 
+    flex: 1; 
+    background: radial-gradient(circle at center, rgba(56, 189, 248, 0.1) 0%, transparent 70%); 
+    display: flex; flex-direction: column; align-items: center; justify-content: center; 
+    position: relative; overflow: hidden; 
+    border-right: 1px solid var(--border);
+  }
+  
+  /* Moving Grid Background for Visual Interest */
+  .grid-bg {
+    position: absolute; inset: 0;
+    background-image: 
+      linear-gradient(rgba(255, 255, 255, 0.03) 1px, transparent 1px),
+      linear-gradient(90deg, rgba(255, 255, 255, 0.03) 1px, transparent 1px);
+    background-size: 40px 40px;
+    mask-image: radial-gradient(circle at center, black 40%, transparent 80%);
+    animation: panGrid 20s linear infinite;
+  }
+  @keyframes panGrid { from { transform: translateY(0); } to { transform: translateY(40px); } }
+
+  .glow-orb { 
+    position: absolute; width: 600px; height: 600px; 
+    background: radial-gradient(circle, rgba(192, 132, 252, 0.2) 0%, transparent 70%); 
+    animation: float 8s ease-in-out infinite; 
+    filter: blur(40px);
+  }
+  @keyframes float { 0%,100%{transform:translateY(0) scale(1);} 50%{transform:translateY(-20px) scale(1.1);} }
+  
+  .hero-content {
+    z-index: 10; text-align: center; padding: 40px;
+    backdrop-filter: blur(4px); border-radius: 32px;
+    background: rgba(0,0,0,0.1); border: 1px solid rgba(255,255,255,0.05);
   }
 
-  /* Logo Section */
-  .brand-lg { 
-      display:flex; 
-      flex-direction:column; 
-      align-items:center; 
-      gap:20px; 
-      margin-bottom: 56px; 
-      animation: fadeInDown 0.8s cubic-bezier(0.2, 0.8, 0.2, 1); 
+  /* Right Side - Form */
+  .form-side { 
+    flex: 0 0 550px; 
+    background: rgba(0,0,0,0.3); 
+    backdrop-filter: blur(24px);
+    display: flex; flex-direction: column; justify-content: center; 
+    padding: 60px; position: relative; 
+    box-shadow: -10px 0 40px rgba(0,0,0,0.3);
   }
   
-  .logo-lg { 
-      width:72px; 
-      height:72px; 
-      border-radius:20px; 
-      background:linear-gradient(135deg,var(--accent),var(--accent-2)); 
-      display:flex; 
-      align-items:center; 
-      justify-content:center; 
-      box-shadow:0 12px 40px rgba(124,92,255,0.25); 
-      color:#061426; 
-      font-weight:800; 
-      font-size:32px; 
+  .logo-img { 
+    width: 64px; height: 64px; 
+    border-radius: 16px; 
+    object-fit: contain; 
+    box-shadow: 0 0 30px rgba(56, 189, 248, 0.3);
+    margin-bottom: 24px;
+    align-self: center;
   }
   
-  /* Cards Grid */
-  .role-grid { 
-      display: grid; 
-      grid-template-columns: repeat(3, 1fr); 
-      gap: 24px; 
-      max-width: 960px; 
-      width: 100%; 
-      animation: fadeInUp 0.8s cubic-bezier(0.2, 0.8, 0.2, 1) 0.15s backwards; 
+  h2 { 
+    font-size: 28px; font-weight: 800; margin-bottom: 8px; color: white; 
+    text-align: center; letter-spacing: -0.5px;
+  }
+  p.subtitle { 
+    color: var(--muted); margin-bottom: 32px; font-size: 15px; text-align: center; line-height: 1.5; 
   }
   
-  .role-card {
-      background: linear-gradient(180deg, var(--card), #0c0d10);
-      border: 1px solid var(--glass);
-      border-radius: 20px;
-      padding: 40px 32px;
-      text-align: center;
-      cursor: pointer;
-      transition: all 0.3s cubic-bezier(0.25, 0.8, 0.25, 1);
-      position: relative;
-      display: flex;
-      flex-direction: column;
-      align-items: center;
+  /* Improved Inputs with Floating Label feel */
+  .input-group { margin-bottom: 20px; position: relative; }
+  
+  .input-wrapper { position: relative; transition: 0.2s; }
+  
+  .input-icon { 
+    position: absolute; left: 16px; top: 50%; transform: translateY(-50%); 
+    color: var(--muted); pointer-events: none; transition: 0.2s; 
   }
   
-  .role-card:hover { 
-      transform: translateY(-8px); 
-      border-color: rgba(110, 231, 255, 0.2); 
-      box-shadow: 0 20px 50px rgba(0,0,0,0.5), 0 0 0 1px rgba(110, 231, 255, 0.1) inset; 
+  .input-field { 
+    width: 100%; padding: 16px 16px 16px 48px; 
+    background: rgba(255, 255, 255, 0.03); 
+    border: 1px solid var(--border); 
+    border-radius: 14px; color: white; outline: none; transition: all 0.2s; font-size: 15px;
   }
+  .input-field:hover { background: rgba(255, 255, 255, 0.06); }
+  .input-field:focus { 
+    border-color: var(--accent); 
+    background: rgba(0, 0, 0, 0.4); 
+    box-shadow: 0 0 0 4px rgba(56, 189, 248, 0.1); 
+  }
+  .input-field:focus + .input-icon { color: var(--accent); }
   
-  /* Icon styling */
-  .icon-circle { 
-      width: 64px; 
-      height: 64px; 
-      border-radius: 50%; 
-      background: rgba(255,255,255,0.03); 
-      border: 1px solid rgba(255,255,255,0.03);
-      display: flex; 
-      align-items: center; 
-      justify-content: center; 
-      margin-bottom: 24px; 
-      font-size: 28px; 
-      color: var(--muted); 
-      transition: all 0.3s ease; 
+  .btn-primary { 
+    width: 100%; padding: 16px; 
+    background: linear-gradient(90deg, var(--accent), var(--accent-purple)); 
+    border: none; border-radius: 14px; 
+    color: #020617; font-weight: 700; font-size: 16px; cursor: pointer; 
+    margin-top: 12px; transition: transform 0.2s, box-shadow 0.2s; 
+    box-shadow: 0 4px 20px rgba(56, 189, 248, 0.2);
+    position: relative; overflow: hidden;
   }
+  .btn-primary:hover { transform: translateY(-2px); box-shadow: 0 8px 30px rgba(192, 132, 252, 0.3); }
   
-  .role-card:hover .icon-circle { 
-      transform: scale(1.1); 
-      background: rgba(110, 231, 255, 0.08); 
-      color: var(--accent); 
-      border-color: rgba(110, 231, 255, 0.1); 
-  }
+  .toggle-text { margin-top: 24px; text-align: center; font-size: 14px; color: var(--muted); }
+  .toggle-link { color: var(--accent); cursor: pointer; font-weight: 600; transition: 0.2s; position: relative; }
+  .toggle-link::after { content:''; position: absolute; width: 100%; height: 1px; bottom: -2px; left: 0; background: var(--accent); transform: scaleX(0); transition: transform 0.2s; }
+  .toggle-link:hover::after { transform: scaleX(1); }
+  .toggle-link:hover { color: white; }
   
-  /* Text styling */
-  .role-title { 
-      font-size: 20px; 
-      font-weight: 700; 
-      color: #fff; 
-      margin-bottom: 12px; 
-  }
-  
-  .role-desc { 
-      font-size: 14px; 
-      color: var(--muted); 
-      line-height: 1.6; 
-      margin-bottom: 32px; 
-      flex-grow: 1; 
-  }
-  
-  /* Action Button (Fake button inside card) */
-  .btn-enter {
-      padding: 12px 24px;
-      border-radius: 12px;
-      border: 1px solid var(--glass-2);
-      background: rgba(255,255,255,0.01);
-      color: var(--muted);
-      font-size: 14px;
-      font-weight: 600;
-      transition: all 0.2s;
-      width: 100%;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      gap: 8px;
-  }
-  
-  .role-card:hover .btn-enter { 
-      background: linear-gradient(90deg, var(--accent), var(--accent-2)); 
-      border-color: transparent; 
-      color: #061426; 
-      box-shadow: 0 4px 12px rgba(110, 231, 255, 0.15);
-  }
+  .forgot-link { display: block; text-align: right; font-size: 13px; color: var(--muted); margin-top: 8px; cursor: pointer; transition: 0.2s; }
+  .forgot-link:hover { color: var(--accent-purple); }
 
-  /* Animations */
-  @keyframes fadeInDown { from{opacity:0;transform:translateY(-30px)} to{opacity:1;transform:translateY(0)} }
-  @keyframes fadeInUp { from{opacity:0;transform:translateY(30px)} to{opacity:1;transform:translateY(0)} }
+  /* Animation */
+  .fade-in { animation: fade 0.5s cubic-bezier(0.16, 1, 0.3, 1); }
+  @keyframes fade { from{opacity:0; transform:translateY(20px);} to{opacity:1; transform:translateY(0);} }
+
+  .hidden { display: none; }
   
-  /* Mobile Responsive */
-  @media(max-width: 900px) { 
-      .role-grid { grid-template-columns: 1fr; max-width: 420px; } 
-      .login-wrap { height: auto; padding: 60px 20px; } 
-      .brand-lg { margin-bottom: 40px; }
-  }
+  @media(max-width: 900px) { .visual-side { display: none; } .form-side { flex: 1; } }
 </style>
 </head>
 <body>
 
-<div class="login-wrap">
-    <!-- Ambient Background Lighting -->
-    <div class="glow-blob"></div>
-
-    <!-- Centered Logo Brand -->
-    <div class="brand-lg">
-        <div class="logo-lg">SA</div>
-        <div style="text-align:center">
-            <h1 style="font-size:36px; font-weight:800; letter-spacing:-0.8px; margin-bottom:8px; color:white;">ScheduleApp</h1>
-            <p style="color:var(--muted); font-size:16px;">Secure Member Management Portal</p>
+<div class="auth-container">
+    <!-- Visual Decor -->
+    <div class="visual-side">
+        <div class="grid-bg"></div>
+        <div class="glow-orb"></div>
+        <div class="hero-content">
+            <h1 style="font-size:56px; font-weight:800; margin-bottom:16px; letter-spacing:-2px; background: linear-gradient(to right, #fff, #94a3b8); background-clip: text; -webkit-background-clip: text; -webkit-text-fill-color: transparent;">ScheduleApp</h1>
+            <p style="font-size:18px; color:rgba(255,255,255,0.7); font-weight:500; max-width: 320px; margin: 0 auto;">Orchestrate your team's rhythm with effortless precision.</p>
         </div>
     </div>
 
-    <!-- Login Options Grid -->
-    <div class="role-grid">
+    <!-- Forms -->
+    <div class="form-side">
         
-        <!-- 1. Admin Option -->
-        <div class="role-card" onclick="goToDashboard('Admin')">
-            <div class="icon-circle">🛡️</div>
-            <div class="role-title">Admin Access</div>
-            <div class="role-desc">Full control over team configuration, event scheduling, and member assignments logic.</div>
-            <div class="btn-enter">
-                Enter as Admin 
-                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14M12 5l7 7-7 7"/></svg>
+        <img src="LOGO.png" alt="Logo" class="logo-img">
+
+        <!-- LOGIN FORM -->
+        <div id="loginForm" class="fade-in">
+            <h2>Log In</h2>
+            <p class="subtitle">Access your workspace and manage your team.</p>
+            
+            <form onsubmit="handleAuth(event, 'login')">
+                <div class="input-group">
+                    <div class="input-wrapper">
+                        <input type="email" class="input-field" placeholder="Email Address" required>
+                        <i data-lucide="mail" width="20" class="input-icon"></i>
+                    </div>
+                </div>
+                <div class="input-group">
+                    <div class="input-wrapper">
+                        <input type="password" class="input-field" placeholder="Password" required>
+                        <i data-lucide="lock" width="20" class="input-icon"></i>
+                    </div>
+                    <span class="forgot-link">Forgot password?</span>
+                </div>
+                <button type="submit" class="btn-primary">Sign In</button>
+            </form>
+            
+            <div class="toggle-text">
+                Don't have an account? <span class="toggle-link" onclick="toggleForm()">Create one</span>
             </div>
         </div>
 
-        <!-- 2. Member Option -->
-        <div class="role-card" onclick="goToDashboard('Member')">
-            <div class="icon-circle">👤</div>
-            <div class="role-title">Member Portal</div>
-            <div class="role-desc">View your upcoming assigned shifts, set availability, and manage your personal profile.</div>
-            <div class="btn-enter">
-                Enter as Member
-                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14M12 5l7 7-7 7"/></svg>
+        <!-- REGISTER FORM -->
+        <div id="registerForm" class="hidden fade-in">
+            <h2>Get Started</h2>
+            <p class="subtitle">Create an account to join or build your team.</p>
+            
+            <form onsubmit="handleAuth(event, 'register')">
+                <div class="input-group">
+                    <div class="input-wrapper">
+                        <input type="text" id="regName" class="input-field" placeholder="Full Name" required>
+                        <i data-lucide="user" width="20" class="input-icon"></i>
+                    </div>
+                </div>
+                <div class="input-group">
+                    <div class="input-wrapper">
+                        <input type="email" class="input-field" placeholder="Email Address" required>
+                        <i data-lucide="mail" width="20" class="input-icon"></i>
+                    </div>
+                </div>
+                <div class="input-group">
+                    <div class="input-wrapper">
+                        <input type="password" class="input-field" placeholder="Create Password" required>
+                        <i data-lucide="lock" width="20" class="input-icon"></i>
+                    </div>
+                </div>
+                <button type="submit" class="btn-primary">Create Account</button>
+            </form>
+            
+            <div class="toggle-text">
+                Already have an account? <span class="toggle-link" onclick="toggleForm()">Sign in</span>
             </div>
         </div>
-
-        <!-- 3. Creator Option -->
-        <div class="role-card" onclick="window.location.href='create_team.html'">
-            <div class="icon-circle">🚀</div>
-            <div class="role-title">Create Team</div>
-            <div class="role-desc">Start a new organization from scratch and invite your first team members instantly.</div>
-            <div class="btn-enter">
-                Get Started
-                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14M12 5l7 7-7 7"/></svg>
-            </div>
-        </div>
-
-    </div>
-    
-    <!-- Footer -->
-    <div style="margin-top: 60px; color: rgba(255,255,255,0.2); font-size: 13px; font-weight:500;">
-        &copy; 2025 ScheduleApp Inc. All rights reserved.
     </div>
 </div>
 
 <script>
-    function goToDashboard(role) {
-        // Simple animation feedback before redirect
-        document.body.style.opacity = '0';
-        document.body.style.transition = 'opacity 0.3s ease';
+    lucide.createIcons();
+
+    function toggleForm() {
+        const login = document.getElementById('loginForm');
+        const reg = document.getElementById('registerForm');
         
+        // Simple fade toggle logic
+        if (login.classList.contains('hidden')) {
+            login.classList.remove('hidden');
+            reg.classList.add('hidden');
+        } else {
+            login.classList.add('hidden');
+            reg.classList.remove('hidden');
+        }
+    }
+
+    function handleAuth(e, type) {
+        e.preventDefault();
+        const btn = e.target.querySelector('button');
+        const originalText = btn.innerText;
+        
+        btn.innerHTML = `<i data-lucide="loader-2" class="animate-spin" width="20"></i>`;
+        btn.style.opacity = "0.9";
+        btn.style.pointerEvents = "none";
+        lucide.createIcons();
+
+        if(type === 'register') {
+            const name = document.getElementById('regName').value;
+            localStorage.setItem('sa_username', name);
+        } else {
+            if(!localStorage.getItem('sa_username')) localStorage.setItem('sa_username', 'User');
+        }
+
         setTimeout(() => {
-            if (role === 'Member') {
-                // Redirects Member to their specific dashboard
-                window.location.href = 'member_dashboard.html';
-            } else {
-                // Admin and Creator go to the main dashboard
-                window.location.href = `dashboard.html?role=${role}`;
-            }
-        }, 300);
+            window.location.href = 'user_home.html';
+        }, 1200);
     }
 </script>
 
