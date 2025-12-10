@@ -1,0 +1,260 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width,initial-scale=1" />
+<title>Join Team — ScheduleApp</title>
+<script src="https://cdn.tailwindcss.com"></script>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+<script src="https://unpkg.com/lucide@latest"></script>
+<style>
+  :root { 
+    --primary: #e879f9; /* Fuchsia/Pink */
+    --primary-dark: #c084fc;
+    --secondary: #818cf8; /* Soft Indigo */
+    --text: #ffffff; 
+    --muted: rgba(255, 255, 255, 0.6); 
+    
+    /* Glassmorphism Variables */
+    --glass-bg: rgba(255, 255, 255, 0.03);
+    --glass-border: rgba(255, 255, 255, 0.1);
+    --glass-shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.4);
+    --glass-blur: blur(20px);
+  }
+  
+  html, body {
+      height: 100%;
+      margin: 0;
+      padding: 0;
+      font-family: 'Inter', sans-serif;
+      overflow-x: hidden;
+      color: var(--text);
+      /* Deep Space Animated Gradient */
+      background: linear-gradient(-45deg, #02010a, #1e0b36, #120429, #0f0518);
+      background-size: 400% 400%;
+      animation: gradientBG 15s ease infinite;
+  }
+  
+  @keyframes gradientBG {
+      0% { background-position: 0% 50%; }
+      50% { background-position: 100% 50%; }
+      100% { background-position: 0% 50%; }
+  }
+
+  /* Floating Orbs */
+  .orb {
+      position: absolute;
+      border-radius: 50%;
+      filter: blur(80px);
+      opacity: 0.4;
+      z-index: 0;
+      animation: floatOrb 10s ease-in-out infinite;
+  }
+  .orb-1 { width: 300px; height: 300px; background: var(--primary); top: 10%; left: 20%; animation-delay: 0s; }
+  .orb-2 { width: 400px; height: 400px; background: #4c1d95; bottom: 10%; right: 10%; animation-delay: -5s; }
+
+  @keyframes floatOrb {
+      0%, 100% { transform: translateY(0) scale(1); }
+      50% { transform: translateY(-30px) scale(1.1); }
+  }
+
+  .setup-wrap {
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      position: relative;
+      padding: 20px;
+      z-index: 1;
+  }
+  
+  /* Glass Card */
+  .setup-card {
+      background: var(--glass-bg);
+      border: 1px solid var(--glass-border);
+      border-radius: 24px;
+      padding: 40px;
+      width: 100%;
+      max-width: 440px;
+      box-shadow: var(--glass-shadow);
+      backdrop-filter: var(--glass-blur);
+      text-align: center;
+      /* Entrance Animation */
+      animation: slideInUp 0.5s ease forwards;
+  }
+
+  @keyframes slideInUp {
+      from { opacity: 0; transform: translateY(30px); }
+      to { opacity: 1; transform: translateY(0); }
+  }
+
+  .logo-img { 
+      width: 72px; height: 72px; 
+      border-radius: 18px; 
+      object-fit: contain; 
+      box-shadow: 0 0 30px rgba(232, 121, 249, 0.3); /* Pink glow */
+      margin-bottom: 32px;
+      animation: hoverFloat 3s ease-in-out infinite;
+  }
+
+  @keyframes hoverFloat {
+      0%, 100% { transform: translateY(0); }
+      50% { transform: translateY(-6px); }
+  }
+
+  h2 { font-size: 28px; font-weight: 800; margin-bottom: 12px; color: white; letter-spacing: -0.5px; }
+  p { color: var(--muted); font-size: 15px; line-height: 1.5; margin-bottom: 32px; }
+
+  /* Input Digit Boxes */
+  .code-inputs {
+      display: flex; gap: 12px; justify-content: center; margin-bottom: 32px;
+  }
+  
+  .digit-box {
+      width: 60px; height: 70px;
+      background: rgba(0, 0, 0, 0.3);
+      border: 1px solid var(--glass-border);
+      border-radius: 12px;
+      color: white; font-size: 32px; font-weight: 700;
+      text-align: center; outline: none;
+      transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  }
+  
+  .digit-box:focus {
+      border-color: var(--primary);
+      background: rgba(0,0,0,0.5);
+      box-shadow: 0 0 15px rgba(232, 121, 249, 0.2);
+      transform: translateY(-2px);
+  }
+
+  /* Buttons */
+  .btn-join {
+      width: 100%; padding: 16px; border-radius: 12px;
+      background: linear-gradient(135deg, var(--primary), var(--primary-dark));
+      color: white;
+      font-weight: 700; font-size: 15px; border: none;
+      cursor: pointer; 
+      transition: transform 0.2s, box-shadow 0.2s, opacity 0.2s;
+      box-shadow: 0 4px 15px rgba(232, 121, 249, 0.3);
+      display: flex; align-items: center; justify-content: center; gap: 8px;
+      position: relative;
+      overflow: hidden;
+  }
+  
+  .btn-join:hover { transform: translateY(-2px); box-shadow: 0 6px 20px rgba(232, 121, 249, 0.4); }
+  .btn-join:active { transform: scale(0.98); }
+  
+  .btn-back {
+      margin-top: 24px; color: var(--muted); font-size: 13px; cursor: pointer;
+      background: transparent; border: none; text-decoration: none;
+      transition: 0.2s; display: flex; align-items: center; justify-content: center; gap: 6px; width: 100%;
+  }
+  .btn-back:hover { color: white; transform: translateY(-2px); }
+
+  /* Fill Box Loader Styles */
+  .loader-track {
+      position: absolute; bottom: 0; left: 0; height: 4px; width: 100%;
+      background: rgba(255,255,255,0.2);
+      display: none;
+  }
+  .loader-fill {
+      height: 100%; width: 0%;
+      background: white;
+      animation: fillBar 1.2s ease-in-out forwards;
+  }
+  
+  @keyframes fillBar {
+      0% { width: 0%; }
+      100% { width: 100%; }
+  }
+
+  .footer-credit {
+      position: absolute;
+      bottom: 20px;
+      font-size: 12px;
+      color: var(--muted);
+      opacity: 0.5;
+  }
+</style>
+</head>
+<body>
+
+<div class="orb orb-1"></div>
+<div class="orb orb-2"></div>
+
+<div class="setup-wrap">
+
+    <div class="setup-card">
+        <div style="display:flex; justify-content:center;">
+            <img src="LOGO.png" alt="Logo" class="logo-img">
+        </div>
+        
+        <h2>Join Existing Team</h2>
+        <p>Enter the 4-digit access code provided by your team administrator.</p>
+
+        <form id="joinForm" onsubmit="handleJoin(event)">
+            <div class="code-inputs">
+                <input class="digit-box" type="text" maxlength="1" autofocus oninput="moveFocus(this, 'd2')">
+                <input class="digit-box" type="text" maxlength="1" id="d2" oninput="moveFocus(this, 'd3')" onkeydown="backFocus(event, this, null)">
+                <input class="digit-box" type="text" maxlength="1" id="d3" oninput="moveFocus(this, 'd4')" onkeydown="backFocus(event, this, 'd2')">
+                <input class="digit-box" type="text" maxlength="1" id="d4" onkeydown="backFocus(event, this, 'd3')">
+            </div>
+
+            <button type="submit" class="btn-join" id="joinBtn">
+                <span id="btnText">Verify & Join Team</span>
+                <div class="loader-track" id="loaderTrack">
+                    <div class="loader-fill"></div>
+                </div>
+            </button>
+        </form>
+
+        <button class="btn-back" onclick="window.location.href='user_home.html'">
+            <i data-lucide="arrow-left" width="14"></i> Cancel and go back
+        </button>
+    </div>
+
+    <div class="footer-credit">Made by Anored</div>
+</div>
+
+<script>
+    lucide.createIcons();
+
+    // Auto-focus next input logic
+    function moveFocus(current, nextId) {
+        if (current.value.length === 1) {
+            const next = document.getElementById(nextId);
+            if(next) next.focus();
+        }
+    }
+    
+    // Backspace logic
+    function backFocus(e, current, prevId) {
+        if(e.key === 'Backspace' && current.value === '' && prevId) {
+            document.getElementById(prevId).focus();
+        }
+    }
+
+    function handleJoin(e) {
+        e.preventDefault();
+        const btn = document.getElementById('joinBtn');
+        const btnText = document.getElementById('btnText');
+        const loader = document.getElementById('loaderTrack');
+        
+        // Simulating loading state with "Fill Box" effect
+        btnText.innerText = "Verifying Code...";
+        btn.style.pointerEvents = "none"; // Disable clicks
+        loader.style.display = "block"; // Show filling bar
+        
+        // Slight opacity change to indicate processing
+        btn.style.opacity = "0.9";
+
+        setTimeout(() => {
+            // Success! Redirect to member dashboard
+            window.location.href = 'member_dashboard.html';
+        }, 1200); // Matches animation duration
+    }
+</script>
+
+</body>
+</html>
