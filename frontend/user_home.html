@@ -967,13 +967,54 @@
     // UPDATED: Events DB with Team Types
     // Types: 'alpha', 'medicare', 'holiday'
     const EVENTS_DB = {
-        "2025-12-05": [{title: 'Team Sync', time: '10:00 AM - 11:00 AM', location: 'Zoom', color: 'blue', desc: 'Sync up', team: 'medicare'}],
-        "2025-12-10": [{title: 'Client Demo Review', time: '02:00 PM - 03:30 PM', location: 'Alpha', color: 'purple', desc: 'Reviewing progress', team: 'alpha'}],
-        "2025-12-24": [{title: 'Christmas Eve', time: 'Half Day', location: '-', color: 'green', desc: 'Office closes at 12pm', team: 'holiday'}],
-        "2025-12-25": [{title: 'Christmas Day', time: 'All Day', location: '-', color: 'green', desc: 'Holiday', team: 'holiday'}],
-        "2025-12-31": [{title: 'New Year Eve', time: 'Party @ 8PM', location: 'Rooftop', color: 'purple', desc: 'Countdown party', team: 'alpha'}],
-        "2026-01-01": [{title: 'New Year', time: 'All Day', location: '-', color: 'green', desc: 'Holiday', team: 'holiday'}]
-    };
+        // --- Week 1: Early December ---
+    // ================= 2025 EVENTS =================
+
+    // --- Q1 - Q3 2025 (Single events) ---
+    "2025-01-01": [{title: 'New Year Day', time: 'All Day', location: '-', color: 'green', desc: 'Public Holiday', team: 'holiday'}],
+    "2025-02-14": [{title: 'Valentine Lunch', time: '12:00 PM', location: 'Cafeteria', color: 'yellow', desc: 'Social', team: 'social'}],
+    "2025-03-15": [{title: 'Medicare Audit', time: '02:00 PM', location: 'Room 202', color: 'blue', desc: 'Compliance check', team: 'medicare'}],
+    "2025-04-03": [{title: '🎂 User Birthday', time: 'All Day', location: '-', color: 'gold', desc: 'Happy Birthday!', team: 'personal'}],
+    "2025-05-20": [{title: 'Alpha Design Sprint', time: '01:00 PM', location: 'Lab', color: 'purple', desc: 'UI Refresh', team: 'alpha'}],
+    "2025-07-04": [{title: 'Independence Day', time: 'All Day', location: '-', color: 'green', desc: 'Holiday', team: 'holiday'}],
+    "2025-08-15": [{title: 'Summer Outing', time: 'All Day', location: 'Beach', color: 'yellow', desc: 'Team Building', team: 'social'}],
+    "2025-09-08": [{title: 'Alpha Code Freeze', time: '05:00 PM', location: 'Server Room', color: 'purple', desc: 'v1.5 Prep', team: 'alpha'}],
+    "2025-10-31": [{title: 'Halloween', time: '04:00 PM', location: 'Lobby', color: 'yellow', desc: 'Costume Party', team: 'social'}],
+    "2025-11-27": [{title: 'Thanksgiving', time: 'All Day', location: '-', color: 'green', desc: 'Holiday', team: 'holiday'}],
+    
+    // --- DECEMBER 2025 ---
+    "2025-12-05": [{title: 'Team Sync', time: '10:00 AM - 11:00 AM', location: 'Zoom', color: 'blue', desc: 'Sync up', team: 'medicare'}],
+    "2025-12-10": [{title: 'Client Demo Review', time: '02:00 PM - 03:30 PM', location: 'Alpha', color: 'purple', desc: 'Reviewing progress', team: 'alpha'}],
+    "2025-12-13": [{title: 'Reading', time: '10:00 AM - 11:00 AM', location: 'Zoom', color: 'blue', desc: 'Sync up', team: 'medicare'}],
+    "2025-12-24": [{title: 'Christmas Eve', time: 'Half Day', location: '-', color: 'green', desc: 'Office closes 12pm', team: 'holiday'}],
+    
+    // *** STACKED DATE: December 25, 2025 ***
+    "2025-12-25": [
+        {title: 'Christmas Day', time: 'All Day', location: '-', color: 'green', desc: 'Public Holiday', team: 'holiday'}],
+     "2025-12-16": [   {title: 'Urgent Server Patch', time: '08:00 AM - 09:00 AM', location: 'Remote', color: 'purple', desc: 'Alpha Critical Fix', team: 'alpha'}],
+     "2025-12-15": [   {title: 'Medicare Auto-Scale', time: '10:00 PM - 11:00 PM', location: 'Server', color: 'blue', desc: 'Automated Job', team: 'medicare'}
+    ],
+
+    "2025-12-31": [{title: 'New Year Eve', time: 'Party @ 8PM', location: 'Rooftop', color: 'purple', desc: 'Countdown party', team: 'alpha'}],
+
+
+    // ================= 2026 EVENTS =================
+
+    // --- Q1 - Q3 2026 (Single events) ---
+    "2026-01-01": [{title: 'New Year Day', time: 'All Day', location: '-', color: 'green', desc: 'Holiday', team: 'holiday'}],
+    "2026-02-14": [{title: 'Valentine’s', time: 'All Day', location: '-', color: 'green', desc: 'Observance', team: 'holiday'}],
+    "2026-04-03": [{title: '🎂 User Birthday', time: 'All Day', location: '-', color: 'gold', desc: 'Happy Birthday!', team: 'personal'}],
+    "2026-05-15": [{title: 'Alpha Architecture', time: '02:00 PM', location: 'Room 304', color: 'purple', desc: 'System Review', team: 'alpha'}],
+    "2026-06-20": [{title: 'Medicare Training', time: '10:00 AM', location: 'Zoom', color: 'blue', desc: 'Staff Training', team: 'medicare'}],
+    "2026-07-04": [{title: 'Independence Day', time: 'All Day', location: '-', color: 'green', desc: 'Holiday', team: 'holiday'}],
+    "2026-09-07": [{title: 'Labor Day', time: 'All Day', location: '-', color: 'green', desc: 'Holiday', team: 'holiday'}],
+    "2026-11-26": [{title: 'Thanksgiving', time: 'All Day', location: '-', color: 'green', desc: 'Holiday', team: 'holiday'}],
+    "2026-12-15": [ {title: 'Database Backup', time: '11:00 PM', location: 'Cloud', color: 'blue', desc: 'Yearly Dump', team: 'medicare'}  ],
+    "2026-12-24": [{title: 'Christmas Eve', time: 'Half Day', location: '-', color: 'green', desc: 'Holiday', team: 'holiday'}],
+    "2026-12-25": [ {title: 'Christmas Day', time: 'All Day', location: '-', color: 'green', desc: 'Holiday', team: 'holiday'}],
+    "2026-12-17": [ {title: 'On-Call Rotation', time: '09:00 AM - 05:00 PM', location: 'Remote', color: 'purple', desc: 'Alpha Support', team: 'alpha'}],
+    "2026-12-31": [{title: 'New Year Eve', time: 'Party @ 8PM', location: 'Club', color: 'purple', desc: 'Alpha Party', team: 'alpha'}]
+};
 
     function renderCalendar() {
         const grid = document.getElementById('calendarGrid');
