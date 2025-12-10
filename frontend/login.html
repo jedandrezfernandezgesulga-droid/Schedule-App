@@ -1,0 +1,484 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,user-scalable=0" />
+<title>Access — SCHED-i</title>
+<script src="https://cdn.tailwindcss.com"></script>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+<script src="https://unpkg.com/lucide@latest"></script>
+<style>
+  :root{ 
+    --text:#ffffff; 
+    --muted:rgba(255, 255, 255, 0.6); 
+    --accent:#e879f9; /* Fuchsia/Pink */
+    --accent-secondary:#818cf8; /* Soft Indigo */
+    --glass: rgba(255, 255, 255, 0.03);
+    --glass-hover: rgba(255, 255, 255, 0.08);
+    --border: rgba(255, 255, 255, 0.1);
+    --shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.4);
+    --success:#4ade80;
+    --danger:#fb7185;
+  }
+  
+  /* ANIMATED BACKGROUND */
+  body { 
+    background-color: #02010a;
+    font-family: 'Inter', sans-serif; 
+    min-height: 100vh; 
+    overflow-x: hidden;
+    display: flex; flex-direction: column; align-items: center; justify-content: center;
+    color: var(--text);
+    position: relative;
+  }
+
+  /* Glowing Orbs Animation */
+  .orb {
+      position: absolute; border-radius: 50%; filter: blur(80px); opacity: 0.4; z-index: -1;
+      animation: floatOrb 20s infinite ease-in-out;
+  }
+  .orb-1 { width: 400px; height: 400px; background: var(--accent); top: -100px; left: -100px; animation-delay: 0s; }
+  .orb-2 { width: 300px; height: 300px; background: var(--accent-secondary); bottom: -50px; right: -50px; animation-delay: -5s; }
+  .orb-3 { width: 200px; height: 200px; background: #4c1d95; top: 40%; left: 40%; animation-delay: -10s; opacity: 0.2; }
+
+  @keyframes floatOrb {
+      0%, 100% { transform: translate(0, 0) scale(1); }
+      33% { transform: translate(30px, -50px) scale(1.1); }
+      66% { transform: translate(-20px, 20px) scale(0.9); }
+  }
+
+  /* CONTAINER & CARDS */
+  .auth-container {
+      width: 100%; max-width: 420px; padding: 24px; perspective: 1000px; z-index: 10;
+  }
+  
+  .glass-card {
+      background: rgba(10, 5, 20, 0.6);
+      backdrop-filter: blur(24px); -webkit-backdrop-filter: blur(24px);
+      border: 1px solid var(--border);
+      border-radius: 24px;
+      padding: 40px 32px;
+      box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.5);
+      animation: floatUp 0.8s cubic-bezier(0.2, 0.8, 0.2, 1);
+      position: relative; overflow: hidden;
+  }
+  
+  @keyframes floatUp {
+      from { opacity: 0; transform: translateY(40px) scale(0.95); }
+      to { opacity: 1; transform: translateY(0) scale(1); }
+  }
+
+  /* LOGO */
+  .brand-header {
+      display: flex; flex-direction: column; align-items: center; gap: 16px; margin-bottom: 32px;
+  }
+  .brand-logo-img {
+      width: 80px; height: 80px; object-fit: contain;
+      filter: drop-shadow(0 0 15px rgba(232, 121, 249, 0.4));
+      animation: pulseGlow 3s infinite ease-in-out;
+  }
+  .brand-title { font-size: 28px; font-weight: 800; letter-spacing: -0.5px; margin-bottom: 4px; }
+  .brand-sub { font-size: 14px; color: var(--muted); text-align: center; }
+
+  @keyframes pulseGlow {
+      0%, 100% { filter: drop-shadow(0 0 15px rgba(232, 121, 249, 0.4)); transform: scale(1); }
+      50% { filter: drop-shadow(0 0 25px rgba(232, 121, 249, 0.6)); transform: scale(1.05); }
+  }
+
+  /* FORMS */
+  .input-group { margin-bottom: 20px; position: relative; }
+  .input-icon { 
+      position: absolute; left: 16px; top: 50%; transform: translateY(-50%); 
+      color: var(--muted); pointer-events: none; transition: 0.3s; z-index: 2;
+  }
+  
+  .glass-input {
+      width: 100%;
+      background: rgba(0, 0, 0, 0.3);
+      border: 1px solid var(--border);
+      border-radius: 12px;
+      padding: 14px 44px 14px 44px; /* Space for both icons if needed */
+      color: white; font-size: 14px;
+      transition: all 0.3s;
+      outline: none;
+  }
+  .glass-input:focus {
+      border-color: var(--accent);
+      background: rgba(0, 0, 0, 0.5);
+      box-shadow: 0 0 20px rgba(232, 121, 249, 0.15);
+  }
+  .glass-input:focus + .input-icon { color: var(--accent); }
+
+  /* Password Eye Toggle */
+  .password-toggle {
+      position: absolute; right: 16px; top: 50%; transform: translateY(-50%);
+      color: var(--muted); cursor: pointer; transition: 0.2s; z-index: 5;
+  }
+  .password-toggle:hover { color: white; }
+
+  .btn {
+      width: 100%;
+      padding: 14px;
+      border-radius: 12px;
+      font-weight: 700; font-size: 14px;
+      border: none; cursor: pointer;
+      display: flex; align-items: center; justify-content: center; gap: 8px;
+      transition: all 0.3s; position: relative; overflow: hidden;
+  }
+  .btn-primary {
+      background: linear-gradient(135deg, var(--accent), #c084fc);
+      color: white;
+      box-shadow: 0 4px 15px rgba(232, 121, 249, 0.3);
+  }
+  .btn-primary:hover { transform: translateY(-2px); box-shadow: 0 8px 25px rgba(232, 121, 249, 0.5); }
+  .btn-primary:active { transform: scale(0.98); }
+
+  .toggle-text {
+      text-align: center; margin-top: 24px; font-size: 13px; color: var(--muted);
+  }
+  .toggle-link {
+      color: var(--accent); font-weight: 600; cursor: pointer; transition: 0.2s;
+  }
+  .toggle-link:hover { color: white; text-decoration: underline; text-underline-offset: 4px; }
+
+  /* UTILS */
+  .hidden { display: none; }
+  .footer-credit { 
+      position: absolute; bottom: 20px; font-size: 12px; color: rgba(255,255,255,0.3); 
+      font-weight: 500; letter-spacing: 1px;
+  }
+
+  /* SETUP MODAL */
+  .setup-overlay {
+      position: fixed; inset: 0; background: rgba(0,0,0,0.9); backdrop-filter: blur(12px);
+      display: none; align-items: center; justify-content: center; z-index: 2000;
+      opacity: 0; transition: opacity 0.4s;
+  }
+  .setup-overlay.open { display: flex; opacity: 1; }
+  
+  .setup-box {
+      width: 90%; max-width: 550px;
+      background: #120524; border: 1px solid var(--border); border-radius: 24px;
+      padding: 32px; box-shadow: 0 25px 60px rgba(0,0,0,0.8);
+      transform: scale(0.95); transition: transform 0.4s cubic-bezier(0.34, 1.56, 0.64, 1);
+      max-height: 90vh; overflow-y: auto;
+  }
+  .setup-overlay.open .setup-box { transform: scale(1); }
+
+  /* SETUP FORM ELEMENTS */
+  .setup-step { display: none; animation: fadeIn 0.4s ease; }
+  .setup-step.active { display: block; }
+  @keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
+  
+  .step-dots { display: flex; gap: 8px; justify-content: center; margin-bottom: 24px; }
+  .step-dot { width: 8px; height: 8px; border-radius: 50%; background: var(--border); transition: 0.3s; }
+  .step-dot.active { background: var(--accent); transform: scale(1.2); box-shadow: 0 0 10px var(--accent); }
+
+  /* SPLIT SHIFT STYLES */
+  .avail-day-group { 
+      background: rgba(255,255,255,0.03); border: 1px solid var(--border);
+      border-radius: 12px; padding: 16px; margin-bottom: 12px;
+  }
+  .day-header { 
+      display: flex; justify-content: space-between; align-items: center; 
+      margin-bottom: 12px; border-bottom: 1px solid var(--border); padding-bottom: 8px;
+  }
+  .day-name { font-weight: 700; color: white; font-size: 14px; }
+  
+  .shift-list { display: flex; flex-direction: column; gap: 8px; }
+  .shift-row { display: flex; gap: 8px; align-items: center; animation: fadeIn 0.3s ease; }
+  
+  .time-input { 
+      background: rgba(0,0,0,0.3); border: 1px solid var(--border); 
+      color: white; border-radius: 8px; padding: 8px; font-size: 13px; 
+      width: 100px; color-scheme: dark; text-align: center;
+  }
+  .time-input:focus { border-color: var(--accent); outline: none; }
+  
+  .btn-icon-small {
+      width: 28px; height: 28px; border-radius: 6px; display: flex; align-items: center; justify-content: center;
+      cursor: pointer; color: var(--muted); transition: 0.2s; background: rgba(255,255,255,0.05);
+  }
+  .btn-icon-small:hover { background: rgba(255,255,255,0.1); color: white; }
+  .btn-add-shift { font-size: 11px; color: var(--success); cursor: pointer; display: flex; align-items: center; gap: 4px; }
+  .btn-add-shift:hover { text-decoration: underline; }
+
+  /* LOADING BAR ANIMATION */
+  .loader-container { width: 100%; height: 4px; background: rgba(255,255,255,0.1); border-radius: 4px; overflow: hidden; display: none; margin-bottom: 16px; }
+  .loader-bar { width: 0%; height: 100%; background: linear-gradient(90deg, var(--accent), var(--accent-secondary)); border-radius: 4px; transition: width 0.2s; box-shadow: 0 0 10px var(--accent); }
+  .loader-container.active { display: block; }
+  .loader-container.active .loader-bar { animation: loadFill 1.5s cubic-bezier(0.2, 0.8, 0.2, 1) forwards; }
+  
+  @keyframes loadFill { 0% { width: 0%; } 100% { width: 100%; } }
+
+</style>
+</head>
+<body>
+
+<!-- Background Orbs -->
+<div class="orb orb-1"></div>
+<div class="orb orb-2"></div>
+<div class="orb orb-3"></div>
+
+<div class="auth-container">
+    <div class="glass-card">
+        
+        <!-- HEADER -->
+        <div class="brand-header">
+            <!-- Updated Logo -->
+            <img src="LOGO.png" alt="SCHED-i Logo" class="brand-logo-img">
+            <div style="margin-top:8px;">
+                <div class="brand-title" style="text-align:center;">SCHED-i</div>
+                <div class="brand-sub">Team management at warp speed.</div>
+            </div>
+        </div>
+
+        <!-- LOADER -->
+        <div class="loader-container" id="mainLoader">
+            <div class="loader-bar"></div>
+        </div>
+
+        <!-- LOGIN FORM -->
+        <form id="loginForm" onsubmit="handleAuth(event, 'login')">
+            <div class="input-group">
+                <i data-lucide="mail" class="input-icon" width="18"></i>
+                <input type="email" class="glass-input" placeholder="Email Address" required>
+            </div>
+            <div class="input-group">
+                <i data-lucide="lock" class="input-icon" width="18"></i>
+                <input type="password" id="loginPass" class="glass-input" placeholder="Password" required>
+                <i data-lucide="eye" class="password-toggle" onclick="togglePass('loginPass', this)"></i>
+            </div>
+            <button type="submit" class="btn btn-primary">
+                Sign In <i data-lucide="arrow-right" width="16"></i>
+            </button>
+            <div class="toggle-text">
+                New here? <span class="toggle-link" onclick="toggleForm()">Create an account</span>
+            </div>
+        </form>
+
+        <!-- REGISTER FORM -->
+        <form id="registerForm" class="hidden" onsubmit="handleAuth(event, 'register')">
+            <div class="input-group">
+                <i data-lucide="user" class="input-icon" width="18"></i>
+                <input type="text" id="regName" class="glass-input" placeholder="Full Name" required>
+            </div>
+            <div class="input-group">
+                <i data-lucide="mail" class="input-icon" width="18"></i>
+                <input type="email" class="glass-input" placeholder="Email Address" required>
+            </div>
+            <div class="input-group">
+                <i data-lucide="lock" class="input-icon" width="18"></i>
+                <input type="password" id="regPass" class="glass-input" placeholder="Create Password" required>
+                <i data-lucide="eye" class="password-toggle" onclick="togglePass('regPass', this)"></i>
+            </div>
+            <button type="submit" class="btn btn-primary">
+                Get Started <i data-lucide="sparkles" width="16"></i>
+            </button>
+            <div class="toggle-text">
+                Already have an account? <span class="toggle-link" onclick="toggleForm()">Sign in</span>
+            </div>
+        </form>
+
+    </div>
+</div>
+
+<!-- FOOTER CREDIT -->
+<div class="footer-credit">Made by "Anored"</div>
+
+<!-- SETUP MODAL (POPUP AFTER REGISTER) -->
+<div class="setup-overlay" id="setupModal">
+    <div class="setup-box">
+        
+        <div class="step-dots">
+            <div class="step-dot active" id="dot1"></div>
+            <div class="step-dot" id="dot2"></div>
+        </div>
+
+        <!-- STEP 1: PROFILE INFO -->
+        <div class="setup-step active" id="step1">
+            <h2 style="font-size:24px; font-weight:800; color:white; margin-bottom:8px; text-align:center;">Welcome aboard! 🚀</h2>
+            <p style="color:var(--muted); text-align:center; margin-bottom:24px; font-size:14px;">Let's set up your profile so your team knows who you are.</p>
+            
+            <div class="input-group">
+                <label style="display:block; color:var(--accent); font-size:12px; font-weight:700; margin-bottom:6px; text-transform:uppercase;">Job Title</label>
+                <input type="text" id="setupTitle" class="glass-input" placeholder="e.g. Software Engineer">
+            </div>
+            <div class="input-group">
+                <label style="display:block; color:var(--accent); font-size:12px; font-weight:700; margin-bottom:6px; text-transform:uppercase;">Pronouns</label>
+                <input type="text" id="setupPronouns" class="glass-input" placeholder="e.g. they/them">
+            </div>
+            
+            <button class="btn btn-primary" onclick="nextStep()">Next: Schedule <i data-lucide="arrow-right" width="16"></i></button>
+        </div>
+
+        <!-- STEP 2: SPLIT SHIFT AVAILABILITY -->
+        <div class="setup-step" id="step2">
+            <h2 style="font-size:20px; font-weight:800; color:white; margin-bottom:8px;">Set Your Schedule</h2>
+            <p style="color:var(--muted); font-size:13px; margin-bottom:20px;">Add your availability. You can add multiple shifts per day (e.g. Morning & Evening).</p>
+            
+            <div id="availContainer" style="margin-bottom:24px;">
+                <!-- JS Generated Split Shift Rows -->
+            </div>
+
+            <div style="display:flex; gap:12px;">
+                <button class="btn" style="background:transparent; border:1px solid var(--border); color:var(--muted);" onclick="prevStep()">Back</button>
+                <button class="btn btn-primary" onclick="finishSetup()">Complete Setup <i data-lucide="check" width="16"></i></button>
+            </div>
+        </div>
+
+    </div>
+</div>
+
+<script>
+    lucide.createIcons();
+
+    // TOGGLE PASSWORD VISIBILITY
+    function togglePass(inputId, icon) {
+        const input = document.getElementById(inputId);
+        if (input.type === 'password') {
+            input.type = 'text';
+            icon.setAttribute('data-lucide', 'eye-off');
+        } else {
+            input.type = 'password';
+            icon.setAttribute('data-lucide', 'eye');
+        }
+        lucide.createIcons();
+    }
+
+    // FORM TOGGLE ANIMATION
+    function toggleForm() {
+        const login = document.getElementById('loginForm');
+        const reg = document.getElementById('registerForm');
+        const loader = document.getElementById('mainLoader');
+        loader.classList.remove('active'); // Reset loader if switching
+        
+        if (login.classList.contains('hidden')) {
+            login.classList.remove('hidden');
+            reg.classList.add('hidden');
+        } else {
+            login.classList.add('hidden');
+            reg.classList.remove('hidden');
+        }
+    }
+
+    // AUTH HANDLING
+    function handleAuth(e, type) {
+        e.preventDefault();
+        
+        // Trigger Loader
+        const loader = document.getElementById('mainLoader');
+        loader.classList.add('active');
+        
+        // Hide Button Content momentarily to indicate processing
+        const btn = e.target.querySelector('button');
+        const originalText = btn.innerHTML;
+        btn.style.opacity = "0.7";
+        btn.innerText = "Processing...";
+
+        setTimeout(() => {
+            if(type === 'register') {
+                // Save Name
+                const name = document.getElementById('regName').value;
+                localStorage.setItem('sa_username', name);
+                
+                // Open Setup Modal
+                document.getElementById('setupModal').classList.add('open');
+                
+                // Reset Button & Loader for background
+                btn.innerHTML = originalText;
+                btn.style.opacity = "1";
+                loader.classList.remove('active');
+            } else {
+                // Login Success -> Redirect
+                window.location.href = 'user_home.html'; 
+            }
+        }, 1500);
+    }
+
+    // SETUP WIZARD LOGIC
+    function nextStep() {
+        document.getElementById('step1').classList.remove('active');
+        document.getElementById('step2').classList.add('active');
+        document.getElementById('dot1').classList.remove('active');
+        document.getElementById('dot2').classList.add('active');
+        generateAvailRows();
+    }
+
+    function prevStep() {
+        document.getElementById('step2').classList.remove('active');
+        document.getElementById('step1').classList.add('active');
+        document.getElementById('dot2').classList.remove('active');
+        document.getElementById('dot1').classList.add('active');
+    }
+
+    // SPLIT SHIFT GENERATOR
+    function generateAvailRows() {
+        const container = document.getElementById('availContainer');
+        if(container.children.length > 0) return; // Prevent duplicates
+
+        const days = ['Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday', 'Sunday'];
+        days.forEach(day => {
+            const dayId = day.toLowerCase();
+            container.innerHTML += `
+                <div class="avail-day-group">
+                    <div class="day-header">
+                        <span class="day-name">${day}</span>
+                        <div class="btn-add-shift" onclick="addShift('${dayId}')">
+                            <i data-lucide="plus" width="12"></i> Add Shift
+                        </div>
+                    </div>
+                    <div class="shift-list" id="shifts-${dayId}">
+                        <!-- Default Shift -->
+                        <div class="shift-row">
+                            <input type="time" class="time-input" value="09:00">
+                            <span style="color:var(--muted); font-size:12px;">to</span>
+                            <input type="time" class="time-input" value="17:00">
+                        </div>
+                    </div>
+                </div>
+            `;
+        });
+        lucide.createIcons();
+    }
+
+    // Add Dynamic Shift Slot
+    window.addShift = function(dayId) {
+        const list = document.getElementById(`shifts-${dayId}`);
+        const div = document.createElement('div');
+        div.className = 'shift-row';
+        div.innerHTML = `
+            <input type="time" class="time-input">
+            <span style="color:var(--muted); font-size:12px;">to</span>
+            <input type="time" class="time-input">
+            <div class="btn-icon-small" onclick="this.parentElement.remove()" style="color:var(--danger)">
+                <i data-lucide="trash-2" width="14"></i>
+            </div>
+        `;
+        list.appendChild(div);
+        lucide.createIcons();
+    }
+
+    function finishSetup() {
+        // Collect Data
+        const profile = {
+            name: localStorage.getItem('sa_username'),
+            title: document.getElementById('setupTitle').value,
+            pronouns: document.getElementById('setupPronouns').value,
+            scheduleSet: true 
+        };
+        
+        localStorage.setItem('sa_profile', JSON.stringify(profile));
+        
+        // Animate Button
+        const btn = document.querySelector('#step2 .btn-primary');
+        btn.innerHTML = `<i data-lucide="loader-2" class="animate-spin"></i> Saving...`;
+        
+        setTimeout(() => {
+            window.location.href = 'user_home.html';
+        }, 1200);
+    }
+
+</script>
+</body>
+</html>
