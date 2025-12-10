@@ -34,7 +34,7 @@
   body {
     height: 100vh;
     color: var(--text);
-    overflow: hidden; 
+    overflow: hidden; /* Default Desktop Behavior */
     /* Deep Space Animated Gradient */
     background: linear-gradient(-45deg, #02010a, #1e0b36, #120429, #0f0518);
     background-size: 400% 400%;
@@ -398,9 +398,48 @@
       100% { width: 100%; }
   }
 
+  /* --- RESPONSIVE MOBILE FIXES --- */
   @media(max-width: 900px) {
-    .grid-container { grid-template-columns: 1fr; overflow-y: auto; }
-    .panel { max-height: none; }
+    /* Switch from fixed app to scrolling page */
+    body { 
+        overflow-y: auto; 
+        height: auto; 
+    }
+    
+    .app-layout { 
+        height: auto; 
+        display: block; 
+        overflow: visible; 
+    }
+
+    .grid-container { 
+        display: flex;
+        flex-direction: column;
+        grid-template-columns: 1fr; 
+        overflow: visible; 
+        height: auto;
+        padding-bottom: 80px; /* Space for toast/bottom of mobile */
+    }
+    
+    /* Panels Stacked with Fixed Height for Internal Scroll */
+    .panel { 
+        height: 600px; 
+        max-height: 80vh; 
+        margin-bottom: 24px;
+        flex: none; /* Don't stretch indefinitely */
+    }
+
+    /* Header Compact */
+    .brand h1 { font-size: 18px; }
+    .brand p { display: none; }
+    
+    /* Icon-only buttons on mobile */
+    .btn span { display: none; } 
+    .btn { padding: 10px; justify-content: center; }
+    .actions { gap: 8px; }
+    
+    /* Modal responsive */
+    .modal { width: 90%; margin: 20px; }
   }
 </style>
 </head>
@@ -431,7 +470,7 @@
       </button>
       
       <button class="btn btn-primary" id="openAddMember">
-        <i data-lucide="plus" width="16"></i> Add Member
+        <i data-lucide="plus" width="16"></i> <span>Add Member</span>
       </button>
     </div>
   </header>
@@ -528,10 +567,10 @@
 
         <div style="display:flex; gap:8px; margin-top:20px;">
             <button class="btn btn-secondary flex-1" id="saveDraftBtn">
-                <i data-lucide="save" size="14"></i> Draft
+                <i data-lucide="save" size="14"></i> <span>Draft</span>
             </button>
             <button class="btn btn-primary flex-1" id="createEventBtn">
-              <i data-lucide="check" size="14"></i> Create Event
+              <i data-lucide="check" size="14"></i> <span>Create Event</span>
             </button>
         </div>
         <div id="assignResult" style="margin-top:10px; font-size:12px;"></div>
@@ -587,7 +626,7 @@
       const loader = document.getElementById('loaderTrack');
 
       btn.style.pointerEvents = "none";
-      text.innerText = "Returning...";
+      if(text) text.innerText = "Returning...";
       loader.style.display = "block";
       
       setTimeout(() => {
