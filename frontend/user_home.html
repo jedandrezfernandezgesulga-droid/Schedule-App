@@ -368,6 +368,16 @@ body {
       background: var(--event-gradient, linear-gradient(90deg, var(--accent), var(--accent-secondary)));
       opacity: 0.95;
   }
+  /* Make event colors fill the full date cell (not just a small bar) */
+  .cal-date.has-events {
+      background-image: var(--event-gradient);
+      background-size: cover;
+      background-repeat: no-repeat;
+      color: white;
+      border-color: rgba(255,255,255,0.12);
+  }
+  /* Hide the small indicator bar when full-background is used */
+  .cal-date.has-events::after { display: none; }
   .cal-date.has-availability::after {
       content: '';
       position: absolute; left: 6px; right: 6px; bottom: 6px; height: 4px; border-radius: 6px;
@@ -1755,19 +1765,26 @@ body {
     }
 
     function getTimeFromPickers(prefix) {
+        const timeInput = document.getElementById(`pe-${prefix}-time`);
+        if(timeInput) return timeInput.value || '00:00';
+
         const hourScroll = document.getElementById(`pe-${prefix}-hour-scroll`);
         const minScroll = document.getElementById(`pe-${prefix}-min-scroll`);
+        if(!hourScroll || !minScroll) return '00:00';
         const hour = hourScroll.querySelector('.time-picker-item.selected')?.textContent || '00';
         const min = minScroll.querySelector('.time-picker-item.selected')?.textContent || '00';
         return `${hour}:${min}`;
     }
 
     function setTimeToPickers(prefix, time) {
-        const [hour, min] = time.split(':');
+        const timeInput = document.getElementById(`pe-${prefix}-time`);
+        if(timeInput) { timeInput.value = time; return; }
+
+        const [hour, min] = (time || '00:00').split(':');
         const hourScroll = document.getElementById(`pe-${prefix}-hour-scroll`);
         const minScroll = document.getElementById(`pe-${prefix}-min-scroll`);
+        if(!hourScroll || !minScroll) return;
         
-        // Set hour
         const hourItems = hourScroll.querySelectorAll('.time-picker-item');
         hourItems.forEach(el => el.classList.remove('selected'));
         if(hourItems[parseInt(hour || 0)]) {
@@ -1775,7 +1792,6 @@ body {
             hourScroll.scrollTop = parseInt(hour || 0) * 32 - 44;
         }
         
-        // Set min
         const minItems = minScroll.querySelectorAll('.time-picker-item');
         minItems.forEach(el => el.classList.remove('selected'));
         if(minItems[parseInt(min || 0)]) {
@@ -1789,9 +1805,8 @@ body {
         modal.querySelector('#pe-date').value = dateKey;
         
         // Initialize time pickers if not already done
-        if(!modal.querySelector('#pe-start-hour-scroll').children.length) {
-            initTimePickerScrolls();
-        }
+        const startHourScroll = modal.querySelector('#pe-start-hour-scroll');
+        if(startHourScroll && !startHourScroll.children.length) initTimePickerScrolls();
         
         modal.classList.add('open');
         // reset form
@@ -1878,15 +1893,63 @@ body {
             }
         } catch(err){console.log('Error checking availability:', err);}
 
+        // check against team/mocked events on that date (EVENTS_DB)
+        try {
+            if(window.EVENTS_DB || typeof EVENTS_DB !== 'undefined') {
+                const db = window.EVENTS_DB || EVENTS_DB || {};
+                const parseRange = (timeStr) => {
+                    if(!timeStr) return {allDay:false, start:'', end:''};
+                    const s = String(timeStr).toLowerCase();
+                    if(s.includes('all day')) return {allDay:true, start:'', end:''};
+                    // find HH:MM with optional am/pm
+                    const re = /(\d{1,2}:\d{2}\s?(am|pm)?)/ig;
+                    const matches = [...s.matchAll(re)].map(m => m[0]);
+                    if(matches.length >= 2) {
+                        const to24 = (t) => {
+                            const m = t.match(/(\d{1,2}):(\d{2})\s?(am|pm)?/i);
+                            if(!m) return '';
+                            let hh = parseInt(m[1],10); const mm = m[2]; const ap = (m[3] || '').toLowerCase();
+                            if(ap === 'pm' && hh < 12) hh += 12;
+                            if(ap === 'am' && hh === 12) hh = 0;
+                            return String(hh).padStart(2,'0') + ':' + mm;
+                        };
+                        return { allDay:false, start: to24(matches[0]), end: to24(matches[1]) };
+                    }
+                    // try single HH:MM -> treat as 1-hour block
+                    if(matches.length === 1) {
+                        const m = matches[0];
+                        const to24 = (t) => {
+                            const mm = t.match(/(\d{1,2}):(\d{2})\s?(am|pm)?/i);
+                            if(!mm) return '';
+                            let hh = parseInt(mm[1],10); const min = mm[2]; const ap = (mm[3]||'').toLowerCase();
+                            if(ap === 'pm' && hh < 12) hh += 12;
+                            if(ap === 'am' && hh === 12) hh = 0;
+                            return String(hh).padStart(2,'0') + ':' + min;
+                        };
+                        const st = to24(matches[0]);
+                        // naive 1 hour end
+                        if(st) {
+                            const parts = st.split(':'); let hh = parseInt(parts[0],10)+1; if(hh>=24) hh = 23; return {allDay:false, start: st, end: String(hh).padStart(2,'0')+':'+parts[1]};
+                        }
+                    }
+                    return {allDay:false, start:'', end:''};
+                };
+
+                const dbEvents = db[dateKey] || [];
+                for(const be of dbEvents) {
+                    const pr = parseRange(be.time || be.time || '');
+                    if(pr.allDay) { conflictFound = true; break; }
+                    if(!eventObj.allDay && pr.start && pr.end && overlaps(eventObj.start, eventObj.end, pr.start, pr.end)) { conflictFound = true; break; }
+                }
+            }
+        } catch(err){console.log('Error checking DB events:', err);}
+
         console.log('Final conflict status:', conflictFound);
 
         if(conflictFound) {
-            // show overlap confirmation modal with options
-            window._pendingPersonalEvent = { dateKey, eventObj };
-            const om = document.getElementById('overlapConfirmModal');
-            om.querySelector('#overlapDate').innerText = dateKey;
-            om.classList.add('open');
-            return;
+            // Strict policy: do NOT allow overlapping events. Prompt user to change times.
+            showToast('Time conflict detected. Please choose a non-overlapping time.');
+            return; // keep modal open for user to adjust
         }
 
         // no conflict -> proceed to add
@@ -1973,9 +2036,8 @@ body {
         const modal = document.getElementById('personalEventModal');
         
         // Initialize time pickers if not already done
-        if(!modal.querySelector('#pe-start-hour-scroll').children.length) {
-            initTimePickerScrolls();
-        }
+        const startHourScroll2 = modal.querySelector('#pe-start-hour-scroll');
+        if(startHourScroll2 && !startHourScroll2.children.length) initTimePickerScrolls();
         
         modal.classList.add('open');
         modal.querySelector('#pe-date').value = key;
@@ -2040,12 +2102,57 @@ body {
                 }
             } catch(err){}
 
+                // check against team/mocked events on that date (EVENTS_DB)
+                try {
+                    if(window.EVENTS_DB || typeof EVENTS_DB !== 'undefined') {
+                        const db = window.EVENTS_DB || EVENTS_DB || {};
+                        const parseRange = (timeStr) => {
+                            if(!timeStr) return {allDay:false, start:'', end:''};
+                            const s = String(timeStr).toLowerCase();
+                            if(s.includes('all day')) return {allDay:true, start:'', end:''};
+                            const re = /(\d{1,2}:\d{2}\s?(am|pm)?)/ig;
+                            const matches = [...s.matchAll(re)].map(m => m[0]);
+                            if(matches.length >= 2) {
+                                const to24 = (t) => {
+                                    const m = t.match(/(\d{1,2}):(\d{2})\s?(am|pm)?/i);
+                                    if(!m) return '';
+                                    let hh = parseInt(m[1],10); const mm = m[2]; const ap = (m[3] || '').toLowerCase();
+                                    if(ap === 'pm' && hh < 12) hh += 12;
+                                    if(ap === 'am' && hh === 12) hh = 0;
+                                    return String(hh).padStart(2,'0') + ':' + mm;
+                                };
+                                return { allDay:false, start: to24(matches[0]), end: to24(matches[1]) };
+                            }
+                            if(matches.length === 1) {
+                                const m = matches[0];
+                                const to24 = (t) => {
+                                    const mm = t.match(/(\d{1,2}):(\d{2})\s?(am|pm)?/i);
+                                    if(!mm) return '';
+                                    let hh = parseInt(mm[1],10); const min = mm[2]; const ap = (mm[3]||'').toLowerCase();
+                                    if(ap === 'pm' && hh < 12) hh += 12;
+                                    if(ap === 'am' && hh === 12) hh = 0;
+                                    return String(hh).padStart(2,'0') + ':' + min;
+                                };
+                                const st = to24(matches[0]);
+                                if(st) {
+                                    const parts = st.split(':'); let hh = parseInt(parts[0],10)+1; if(hh>=24) hh = 23; return {allDay:false, start: st, end: String(hh).padStart(2,'0')+':'+parts[1]};
+                                }
+                            }
+                            return {allDay:false, start:'', end:''};
+                        };
+
+                        const dbEvents = (window.EVENTS_DB || EVENTS_DB || {})[dateKey] || [];
+                        for(const be of dbEvents) {
+                            const pr = parseRange(be.time || '');
+                            if(pr.allDay) { conflictFound = true; break; }
+                            if(!eventObj.allDay && pr.start && pr.end && overlaps(eventObj.start, eventObj.end, pr.start, pr.end)) { conflictFound = true; break; }
+                        }
+                    }
+                } catch(err){console.log('Error checking DB events:', err);} 
+
             if(conflictFound) {
-                // set pending edit
-                window._pendingPersonalEvent = { action: 'edit', dateKey, eventObj };
-                const om = document.getElementById('overlapConfirmModal');
-                om.querySelector('#overlapDate').innerText = dateKey;
-                om.classList.add('open');
+                // Strict policy: do NOT allow overlapping events. Inform user and keep modal open.
+                showToast('Time conflict detected. Please choose a non-overlapping time.');
                 return;
             }
 
@@ -2107,7 +2214,6 @@ body {
         <div style="color:var(--muted); margin-bottom:12px;">This activity overlaps an existing event or an unavailable block on <span id="overlapDate" style="color:var(--accent);"></span>. Do you want to add it anyway or change the time?</div>
         <div style="display:flex; gap:8px; justify-content:flex-end;">
             <button class="btn-primary-action" onclick="cancelOverlapModal()">Change Time</button>
-            <button class="btn-primary-action" style="background:rgba(251,113,133,0.95);" onclick="confirmAddAnyway()">Add Anyway</button>
         </div>
     </div>
 </div>
