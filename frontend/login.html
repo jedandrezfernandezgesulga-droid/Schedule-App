@@ -1,0 +1,93 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,user-scalable=0" />
+<title>Access — SCHED-i</title>
+<script src="https://cdn.tailwindcss.com"></script>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+<script src="https://unpkg.com/lucide@latest"></script>
+<script src="sched.js"></script>
+<link rel="stylesheet" href="css/login.css">
+</head>
+<body>
+
+<div class="orb orb-1"></div>
+<div class="orb orb-2"></div>
+<div class="orb orb-3"></div>
+
+<div class="auth-container">
+    <div class="glass-card">
+        
+        <div class="brand-header">
+            <img src="LOGO.png" alt="SCHED-i Logo" class="brand-logo-img">
+            <div style="margin-top:8px;">
+                <div class="brand-title" style="text-align:center;">SCHED-i</div>
+                <div class="brand-sub">Team management at warp speed.</div>
+            </div>
+        </div>
+
+        <div class="loader-container" id="mainLoader">
+            <div class="loader-bar"></div>
+        </div>
+
+        <form id="loginForm" onsubmit="handleAuth(event, 'login')">
+            <div class="input-group">
+                <i data-lucide="mail" class="input-icon" width="18"></i>
+                <input type="email" class="glass-input" placeholder="Email Address" required>
+            </div>
+            <div class="input-group">
+                <i data-lucide="lock" class="input-icon" width="18"></i>
+                <input type="password" id="loginPass" class="glass-input" placeholder="Password" required>
+                <i data-lucide="eye" class="password-toggle" onclick="togglePass('loginPass', this)"></i>
+            </div>
+            <button type="submit" class="btn btn-primary">
+                Sign In <i data-lucide="arrow-right" width="16"></i>
+            </button>
+            <div class="toggle-text">
+                New here? <span class="toggle-link" onclick="toggleForm()">Create an account</span>
+            </div>
+        </form>
+
+        <form id="registerForm" class="hidden" onsubmit="handleAuth(event, 'register')">
+            <div class="input-group">
+                <i data-lucide="user" class="input-icon" width="18"></i>
+                <input type="text" id="regName" class="glass-input" placeholder="Full Name" required>
+            </div>
+            <div class="input-group">
+                <i data-lucide="mail" class="input-icon" width="18"></i>
+                <input type="email" class="glass-input" placeholder="Email Address" required>
+            </div>
+            <div class="input-group">
+                <i data-lucide="lock" class="input-icon" width="18"></i>
+                <input type="password" id="regPass" class="glass-input" placeholder="Create Password" required>
+                <i data-lucide="eye" class="password-toggle" onclick="togglePass('regPass', this)"></i>
+            </div>
+            <button type="submit" class="btn btn-primary">
+                Get Started <i data-lucide="sparkles" width="16"></i>
+            </button>
+            <div class="toggle-text">
+                Already have an account? <span class="toggle-link" onclick="toggleForm()">Sign in</span>
+            </div>
+        </form>
+
+    </div>
+</div>
+
+<div class="footer-credit">Made by "Anored"</div>
+
+<div class="setup-overlay" id="schedulePromptModal">
+    <div class="setup-box" style="max-width: 400px;">
+        <h2 style="font-size:24px; font-weight:800; color:white; margin-bottom:8px; text-align:center;">Set Schedule?</h2>
+        <p style="color:var(--muted); text-align:center; margin-bottom:24px; font-size:14px;">Would you like to set up your weekly availability now?</p>
+
+        <div style="display:flex; gap:12px;">
+            <button class="btn btn-secondary" onclick="scheduleLater()">Later</button>
+            <button class="btn btn-primary" onclick="scheduleYes()">Yes <i data-lucide="arrow-right" width="16"></i></button>
+        </div>
+    </div>
+</div>
+
+<script src="js/login.js"></script>
+</body>
+</html>

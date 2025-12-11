@@ -1,0 +1,569 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width,initial-scale=1" />
+<title>MediCare — Member Portal</title>
+<script src="https://cdn.tailwindcss.com"></script>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+<script src="https://unpkg.com/lucide@latest"></script>
+<script src="sched.js"></script>
+
+<style>
+  :root { 
+    --primary: #e879f9; /* Fuchsia/Pink */
+    --primary-dark: #c084fc;
+    --secondary: #818cf8; /* Soft Indigo */
+    --text: #ffffff; 
+    --muted: rgba(255, 255, 255, 0.6); 
+    
+    --success: #4ade80;
+    --danger: #fb7185;
+    --warning: #facc15;
+    
+    /* Glassmorphism Variables */
+    --glass-bg: rgba(255, 255, 255, 0.03);
+    --glass-border: rgba(255, 255, 255, 0.1);
+    --glass-shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.4);
+    --glass-blur: blur(20px);
+    
+    --radius: 20px; 
+  }
+  
+  * { box-sizing: border-box; margin: 0; padding: 0; font-family: 'Inter', sans-serif; }
+  
+  body {
+    min-height: 100vh;
+    color: var(--text);
+    overflow-x: hidden;
+    /* Deep Space Animated Gradient */
+    background: linear-gradient(-45deg, #02010a, #1e0b36, #120429, #0f0518);
+    background-size: 400% 400%;
+    animation: gradientBG 15s ease infinite;
+  }
+  
+  @keyframes gradientBG {
+      0% { background-position: 0% 50%; }
+      50% { background-position: 100% 50%; }
+      100% { background-position: 0% 50%; }
+  }
+
+  /* Floating Orbs */
+  .orb {
+      position: absolute;
+      border-radius: 50%;
+      filter: blur(80px);
+      opacity: 0.4;
+      z-index: -1;
+      animation: floatOrb 10s ease-in-out infinite;
+  }
+  .orb-1 { width: 400px; height: 400px; background: var(--primary); top: -10%; left: -10%; animation-delay: 0s; }
+  .orb-2 { width: 500px; height: 500px; background: #4c1d95; bottom: -10%; right: -10%; animation-delay: -5s; }
+
+  @keyframes floatOrb {
+      0%, 100% { transform: translateY(0) scale(1); }
+      50% { transform: translateY(-30px) scale(1.1); }
+  }
+
+  /* Custom Scrollbar */
+  ::-webkit-scrollbar { width: 6px; }
+  ::-webkit-scrollbar-track { background: transparent; }
+  ::-webkit-scrollbar-thumb { background: rgba(255,255,255,0.1); border-radius: 10px; }
+  ::-webkit-scrollbar-thumb:hover { background: rgba(255,255,255,0.2); }
+
+  .container { max-width: 1200px; margin: 0 auto; padding: 0 24px 40px 24px; position: relative; z-index: 1; }
+
+  /* HEADER */
+  header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 24px 0;
+    margin-bottom: 24px;
+    animation: slideInUp 0.5s ease forwards;
+  }
+  
+  .brand { display: flex; align-items: center; gap: 14px; }
+  .logo-img { 
+    width: 42px; height: 42px; 
+    border-radius: 10px; 
+    object-fit: contain; 
+    box-shadow: 0 0 20px rgba(232, 121, 249, 0.4); /* Pink glow */
+  }
+  .brand h1 { font-size: 20px; font-weight: 800; letter-spacing: -0.02em; text-shadow: 0 2px 10px rgba(0,0,0,0.2); }
+  .brand p { font-size: 13px; color: var(--muted); }
+
+  /* BUTTONS */
+  .btn {
+    display: inline-flex; align-items: center; gap: 8px;
+    padding: 10px 18px; border-radius: 12px;
+    font-size: 13px; font-weight: 600;
+    cursor: pointer; transition: all 0.2s;
+    border: none; position: relative; overflow: hidden;
+  }
+  .btn:active { transform: scale(0.98); }
+
+  .btn-secondary { 
+      background: rgba(255, 255, 255, 0.05); 
+      border: 1px solid var(--glass-border); 
+      color: var(--text); 
+      backdrop-filter: blur(10px);
+  }
+  .btn-secondary:hover { 
+      background: rgba(255, 255, 255, 0.1); 
+      transform: translateY(-2px); 
+      box-shadow: 0 4px 12px rgba(0,0,0,0.2);
+  }
+  
+  .btn-sm { padding: 6px 12px; font-size: 11px; border-radius: 8px; }
+  .btn-accept { background: rgba(74, 222, 128, 0.1); color: var(--success); border: 1px solid rgba(74, 222, 128, 0.2); }
+  .btn-accept:hover { background: rgba(74, 222, 128, 0.2); transform:translateY(-1px); }
+  .btn-decline { background: transparent; color: var(--muted); border: 1px solid var(--glass-border); }
+  .btn-decline:hover { color: var(--danger); border-color: var(--danger); background: rgba(251, 113, 133, 0.1); }
+
+  /* GRID LAYOUT */
+  .dashboard-grid { 
+    display: grid; grid-template-columns: 2fr 1fr; gap: 24px; align-items: start; 
+  }
+  
+  /* PANELS - Glassmorphism */
+  .panel {
+    background: var(--glass-bg);
+    border: 1px solid var(--glass-border);
+    border-radius: var(--radius);
+    display: flex; flex-direction: column;
+    overflow: hidden;
+    backdrop-filter: var(--glass-blur); -webkit-backdrop-filter: var(--glass-blur);
+    box-shadow: var(--glass-shadow);
+    margin-bottom: 24px;
+    
+    /* Entrance Animation */
+    opacity: 0;
+    animation: slideInUp 0.6s ease forwards;
+  }
+  
+  /* Staggered delays for panels */
+  .dashboard-grid > div:nth-child(1) .panel:nth-child(1) { animation-delay: 0.1s; }
+  .dashboard-grid > div:nth-child(1) .panel:nth-child(2) { animation-delay: 0.2s; }
+  .dashboard-grid > div:nth-child(2) .stat-grid { animation-delay: 0.3s; opacity: 0; animation-name: slideInUp; animation-duration: 0.6s; animation-fill-mode: forwards;}
+  .dashboard-grid > div:nth-child(2) .panel:nth-child(2) { animation-delay: 0.4s; }
+  .dashboard-grid > div:nth-child(2) .panel:nth-child(3) { animation-delay: 0.5s; }
+
+  @keyframes slideInUp {
+      from { opacity: 0; transform: translateY(20px); }
+      to { opacity: 1; transform: translateY(0); }
+  }
+
+  .panel-header {
+    padding: 20px 24px;
+    border-bottom: 1px solid var(--glass-border);
+    display: flex; justify-content: space-between; align-items: center;
+    background: rgba(255,255,255,0.02);
+  }
+  .panel-title { font-size: 14px; font-weight: 700; color: white; display: flex; gap: 8px; align-items: center; text-transform: uppercase; letter-spacing: 0.5px; }
+  .panel-body { padding: 0; }
+
+  /* ACTION ITEMS (PENDING) */
+  .invite-card { 
+    padding: 16px 24px;
+    border-bottom: 1px solid var(--glass-border);
+    display: flex; align-items: center; gap: 16px;
+    background: linear-gradient(90deg, rgba(250, 204, 21, 0.05), transparent);
+    transition: 0.3s;
+  }
+  .invite-card:last-child { border-bottom: none; }
+  .invite-card:hover { background: rgba(255,255,255,0.05); transform: translateY(-2px); }
+  
+  .date-badge {
+    background: rgba(255,255,255,0.05); border: 1px solid var(--glass-border);
+    border-radius: 10px; padding: 8px 12px; text-align: center; min-width: 55px;
+  }
+  .db-day { font-size: 16px; font-weight: 800; color: white; line-height: 1; }
+  .db-month { font-size: 10px; color: var(--muted); text-transform: uppercase; font-weight: 700; margin-top: 2px; }
+
+  .event-info { flex: 1; }
+  .event-title { font-size: 15px; font-weight: 700; color: white; margin-bottom: 4px; }
+  .event-meta { font-size: 13px; color: var(--muted); display: flex; align-items: center; gap: 12px; }
+  
+  /* CONFIRMED LIST */
+  .schedule-row {
+    padding: 16px 24px; border-bottom: 1px solid var(--glass-border);
+    display: flex; align-items: center; gap: 16px; transition: 0.2s;
+  }
+  .schedule-row:last-child { border-bottom: none; }
+  .schedule-row:hover { background: rgba(255,255,255,0.03); transform: translateY(-2px); }
+  
+  .status-pill {
+    font-size: 10px; font-weight: 600; padding: 4px 8px; border-radius: 20px;
+    text-transform: uppercase; letter-spacing: 0.5px;
+  }
+  .pill-confirmed { background: rgba(56, 189, 248, 0.1); color: var(--secondary); border: 1px solid rgba(129, 140, 248, 0.2); }
+  .pill-pending { background: rgba(250, 204, 21, 0.1); color: var(--warning); border: 1px solid rgba(250, 204, 21, 0.2); }
+
+  /* STATS CARDS */
+  .stat-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; margin-bottom: 24px; }
+  .stat-card {
+    background: var(--glass-bg); border: 1px solid var(--glass-border);
+    border-radius: 16px; padding: 20px; position: relative; overflow: hidden;
+    backdrop-filter: var(--glass-blur);
+    transition: transform 0.3s ease;
+  }
+  .stat-card:hover { transform: translateY(-4px); }
+  
+  .stat-card::before { content:''; position: absolute; top:0; left:0; width:4px; height:100%; background: var(--primary); }
+  .stat-card.secondary::before { background: var(--secondary); }
+  
+  .stat-label { font-size: 11px; color: var(--muted); text-transform: uppercase; font-weight: 700; margin-bottom: 4px; }
+  .stat-val { font-size: 24px; font-weight: 700; color: white; }
+  .stat-trend { font-size: 11px; color: var(--success); display: flex; align-items: center; gap: 4px; margin-top: 4px; }
+
+  /* ROSTER (MEMBER LIST) */
+  .roster-list { max-height: 400px; overflow-y: auto; padding: 8px 0; }
+  .roster-item {
+    display: flex; align-items: center; gap: 12px;
+    padding: 12px 20px; border-bottom: 1px solid rgba(255,255,255,0.02);
+    transition: 0.2s; cursor: default;
+  }
+  .roster-item:hover { background: rgba(255,255,255,0.03); }
+  .roster-item:last-child { border-bottom: none; }
+  
+  .roster-avi {
+    width: 36px; height: 36px; border-radius: 50%;
+    background: rgba(255,255,255,0.05); border: 1px solid var(--glass-border);
+    display: flex; align-items: center; justify-content: center;
+    font-size: 12px; font-weight: 700; color: white; position: relative;
+    box-shadow: 0 0 10px rgba(0,0,0,0.2);
+  }
+  .roster-dot {
+    width: 8px; height: 8px; background: var(--success); border-radius: 50%;
+    position: absolute; bottom: 0; right: 0; border: 2px solid #111030;
+    box-shadow: 0 0 4px var(--success);
+  }
+  .roster-dot.busy { background: var(--danger); box-shadow: 0 0 4px var(--danger); }
+  .roster-dot.offline { background: var(--muted); box-shadow: none; }
+
+  .roster-role { font-size: 10px; padding: 2px 6px; border-radius: 4px; background: rgba(255,255,255,0.1); color: var(--muted); margin-left: auto; }
+  .role-admin { background: rgba(192, 132, 252, 0.1); color: var(--primary-dark); border: 1px solid rgba(192, 132, 252, 0.2); }
+  .role-me { background: rgba(56, 189, 248, 0.1); color: var(--secondary); border: 1px solid rgba(56, 189, 248, 0.2); }
+
+  /* AVAILABILITY GRID */
+  .avail-grid { display: grid; grid-template-columns: repeat(7, 1fr); gap: 4px; padding: 16px; }
+  .avail-day { 
+    text-align: center; background: rgba(255,255,255,0.02); 
+    border-radius: 8px; padding: 8px 4px; border: 1px solid transparent;
+    transition: 0.2s;
+  }
+  .avail-day:hover { background: rgba(255,255,255,0.05); }
+  .avail-day.active { background: rgba(232, 121, 249, 0.1); border-color: rgba(232, 121, 249, 0.2); }
+  .d-name { font-size: 10px; font-weight: 700; color: var(--muted); margin-bottom: 4px; }
+  .d-hours { font-size: 10px; font-weight: 600; color: white; }
+  .avail-day.active .d-name { color: var(--primary); }
+
+  /* TOAST */
+  #notification { 
+    position: fixed; bottom: 32px; right: 32px; 
+    padding: 12px 24px; background: rgba(20, 10, 40, 0.9); border: 1px solid var(--primary); 
+    border-radius: 12px; transform: translateY(100px); transition: transform 0.3s cubic-bezier(0.16, 1, 0.3, 1); 
+    z-index: 100; box-shadow: 0 10px 40px rgba(0,0,0,0.5); 
+    color: white; font-size: 14px; font-weight: 500; display: flex; align-items: center; gap: 10px; 
+    backdrop-filter: blur(10px);
+  }
+  #notification.show { transform: translateY(0); }
+
+  .empty-state { text-align: center; padding: 40px; color: var(--muted); font-size: 13px; font-style: italic; }
+
+  /* Loader Track (Fill Box) */
+  .loader-track {
+      position: absolute; bottom: 0; left: 0; height: 3px; width: 100%;
+      background: rgba(255,255,255,0.2);
+      display: none;
+  }
+  .loader-fill {
+      height: 100%; width: 0%;
+      background: white;
+      animation: fillBar 1s ease-in-out forwards;
+  }
+  @keyframes fillBar {
+      0% { width: 0%; }
+      100% { width: 100%; }
+  }
+
+  @media(max-width: 900px) { .dashboard-grid { grid-template-columns: 1fr; } }
+</style>
+</head>
+<body>
+
+<div class="orb orb-1"></div>
+<div class="orb orb-2"></div>
+
+<div id="notification">
+  <i data-lucide="check-circle" width="18" style="color:var(--success)"></i> <span id="notifMsg">Action Completed</span>
+</div>
+
+<div class="container">
+  <header>
+    <div class="brand">
+      <img src="LOGO.png" alt="Logo" class="logo-img">
+      <div>
+        <h1>MediCare Team</h1>
+        <p>Member Portal</p>
+      </div>
+    </div>
+    
+    <button class="btn btn-secondary" id="backBtn" onclick="handleExit()">
+       <span id="backText">Back to Hub</span> <i data-lucide="arrow-left" width="16"></i>
+       <div class="loader-track" id="loaderTrack">
+            <div class="loader-fill"></div>
+       </div>
+    </button>
+  </header>
+
+  <div class="dashboard-grid">
+    
+    <div style="display:flex; flex-direction:column;">
+      
+      <section class="panel">
+        <div class="panel-header">
+          <div class="panel-title">
+            <i data-lucide="bell" style="color:var(--warning)" width="16"></i> Action Required
+          </div>
+          <span class="status-pill pill-pending" id="pendingCount">0 Pending</span>
+        </div>
+        <div class="panel-body" id="pendingContainer">
+          </div>
+      </section>
+
+      <section class="panel">
+        <div class="panel-header">
+          <div class="panel-title">
+             <i data-lucide="calendar" style="color:var(--primary)" width="16"></i> Upcoming Schedule
+          </div>
+        </div>
+        <div class="panel-body">
+          <div id="scheduleContainer">
+             </div>
+        </div>
+      </section>
+
+    </div>
+
+    <div>
+      <div class="stat-grid">
+        <div class="stat-card">
+          <div class="stat-label">Hours / Week</div>
+          <div class="stat-val">32.0</div>
+          <div class="stat-trend"><i data-lucide="trending-up" width="12"></i> +4.0</div>
+        </div>
+        <div class="stat-card secondary">
+          <div class="stat-label">Next Shift</div>
+          <div class="stat-val" style="font-size:18px; margin-top:4px;">Tue 9AM</div>
+          <div style="font-size:11px; color:var(--muted); margin-top:2px;">Main Ward</div>
+        </div>
+      </div>
+
+      <section class="panel">
+        <div class="panel-header">
+          <div class="panel-title">
+             <i data-lucide="clock" width="16" style="color:var(--primary-dark)"></i> Availability
+          </div>
+          <button style="background:none; border:none; color:var(--primary); font-size:11px; cursor:pointer; font-weight:600;">Edit</button>
+        </div>
+        <div class="panel-body">
+          <div class="avail-grid">
+            <div class="avail-day active"><div class="d-name">MON</div><div class="d-hours">9-5</div></div>
+            <div class="avail-day active"><div class="d-name">TUE</div><div class="d-hours">9-5</div></div>
+            <div class="avail-day active"><div class="d-name">WED</div><div class="d-hours">9-1</div></div>
+            <div class="avail-day"><div class="d-name">THU</div><div class="d-hours">-</div></div>
+            <div class="avail-day active"><div class="d-name">FRI</div><div class="d-hours">1-5</div></div>
+            <div class="avail-day"><div class="d-name">SAT</div><div class="d-hours">-</div></div>
+            <div class="avail-day"><div class="d-name">SUN</div><div class="d-hours">-</div></div>
+          </div>
+        </div>
+      </section>
+
+      <section class="panel">
+        <div class="panel-header">
+          <div class="panel-title">
+             <i data-lucide="users" width="16" style="color:var(--success)"></i> Team Roster
+          </div>
+          <span style="font-size:11px; color:var(--muted);">12 Members</span>
+        </div>
+        <div class="panel-body roster-list" id="rosterContainer">
+           </div>
+      </section>
+
+    </div>
+
+  </div>
+</div>
+
+<script>
+// --- Mock Data ---
+let MOCK_EVENTS = [
+  { id: 101, title: "Emergency Coverage", date: "2023-12-15", time: "08:00 - 16:00", location: "Main Ward", status: "pending" },
+  { id: 104, title: "Night Shift Sub", date: "2023-12-16", time: "20:00 - 04:00", location: "ER Unit", status: "pending" },
+  { id: 102, title: "Weekly Sync", date: "2023-12-18", time: "14:00 - 15:00", location: "Conf. Room B", status: "confirmed" },
+  { id: 103, title: "Weekend Rotation", date: "2023-12-19", time: "09:00 - 17:00", location: "Remote", status: "confirmed" },
+  { id: 105, title: "Training Session", date: "2023-12-21", time: "10:00 - 12:00", location: "Zoom", status: "confirmed" }
+];
+
+// 12 Mock Members + User + Admin
+const TEAM_MEMBERS = [
+    { name: "Dr. Sarah Connor", role: "Leader", status: "online" },
+    { name: "You (John Doe)", role: "Member", status: "online", isMe: true },
+    { name: "Emily Blunt", role: "Member", status: "busy" },
+    { name: "Chris Evans", role: "Member", status: "offline" },
+    { name: "Tom Holland", role: "Member", status: "online" },
+    { name: "Scarlett Jo", role: "Member", status: "busy" },
+    { name: "Mark Ruffalo", role: "Member", status: "online" },
+    { name: "Jeremy Renner", role: "Member", status: "offline" },
+    { name: "Paul Rudd", role: "Member", status: "offline" },
+    { name: "Brie Larson", role: "Member", status: "online" },
+    { name: "Chadwick B", role: "Member", status: "busy" },
+    { name: "Elizabeth O", role: "Member", status: "online" },
+];
+
+// --- DOM Elements ---
+const pendingContainer = document.getElementById('pendingContainer');
+const scheduleContainer = document.getElementById('scheduleContainer');
+const rosterContainer = document.getElementById('rosterContainer');
+const pendingCount = document.getElementById('pendingCount');
+const notif = document.getElementById('notification');
+const notifMsg = document.getElementById('notifMsg');
+
+// --- Render Functions ---
+
+function getInitials(name) {
+    if(name.includes('(')) name = name.split('(')[0].trim(); // Remove (John Doe)
+    return name.split(' ').map(n=>n[0]).join('').substring(0,2).toUpperCase();
+}
+
+function renderRoster() {
+    rosterContainer.innerHTML = TEAM_MEMBERS.map(m => {
+        let roleClass = '';
+        if(m.role === 'Leader') roleClass = 'role-admin';
+        else if(m.isMe) roleClass = 'role-me';
+        
+        return `
+        <div class="roster-item">
+            <div class="roster-avi">
+                ${getInitials(m.name)}
+                <div class="roster-dot ${m.status}"></div>
+            </div>
+            <div style="font-size:13px; font-weight:500; color:white;">
+                ${m.name}
+            </div>
+            ${m.role !== 'Member' || m.isMe ? `<div class="roster-role ${roleClass}">${m.isMe ? 'You' : m.role}</div>` : ''}
+        </div>
+        `;
+    }).join('');
+}
+
+function renderEvents() {
+  const pending = MOCK_EVENTS.filter(e => e.status === 'pending');
+  const confirmed = MOCK_EVENTS.filter(e => e.status === 'confirmed');
+
+  // Badge
+  pendingCount.textContent = `${pending.length} Pending`;
+  pendingCount.style.display = pending.length ? 'inline-block' : 'none';
+
+  // Pending List
+  if (pending.length === 0) {
+    pendingContainer.innerHTML = `<div class="empty-state">No pending invites.</div>`;
+  } else {
+    pendingContainer.innerHTML = pending.map(evt => `
+      <div class="invite-card" id="card-${evt.id}">
+        <div class="date-badge">
+            <div class="db-day">${evt.date.split('-')[2]}</div>
+            <div class="db-month">Dec</div>
+        </div>
+        <div class="event-info">
+            <div class="event-title">${evt.title}</div>
+            <div class="event-meta">
+              <span><i data-lucide="clock" width="12" style="display:inline"></i> ${evt.time}</span>
+              <span>${evt.location}</span>
+            </div>
+        </div>
+        <div style="display:flex; gap:8px;">
+          <button class="btn btn-sm btn-decline" onclick="handleAction(${evt.id}, 'decline')">Decline</button>
+          <button class="btn btn-sm btn-accept" onclick="handleAction(${evt.id}, 'accept')">Accept</button>
+        </div>
+      </div>
+    `).join('');
+  }
+
+  // Schedule List
+  if (confirmed.length === 0) {
+    scheduleContainer.innerHTML = `<div class="empty-state">No upcoming shifts.</div>`;
+  } else {
+    scheduleContainer.innerHTML = confirmed.map(evt => `
+      <div class="schedule-row">
+        <div class="date-badge" style="background:transparent; border-color:rgba(255,255,255,0.1)">
+            <div class="db-day" style="color:var(--muted)">${evt.date.split('-')[2]}</div>
+            <div class="db-month">Dec</div>
+        </div>
+        <div class="event-info">
+            <div class="event-title">${evt.title}</div>
+            <div class="event-meta">
+              <span>${evt.time}</span>
+              <span style="color:var(--secondary)">${evt.location}</span>
+            </div>
+        </div>
+        <div class="status-pill pill-confirmed">Confirmed</div>
+      </div>
+    `).join('');
+  }
+  
+  lucide.createIcons();
+}
+
+// --- Interactions ---
+
+window.handleAction = function(id, action) {
+  const idx = MOCK_EVENTS.findIndex(e => e.id === id);
+  if (idx > -1) {
+    const card = document.getElementById(`card-${id}`);
+    if(card) card.style.opacity = '0.5'; // Visual feedback immediately
+    
+    setTimeout(() => {
+        if (action === 'accept') {
+          MOCK_EVENTS[idx].status = 'confirmed';
+          showNotif('Shift Confirmed Successfully');
+        } else {
+          MOCK_EVENTS.splice(idx, 1); 
+          showNotif('Shift Declined');
+        }
+        renderEvents();
+    }, 400);
+  }
+}
+
+function showNotif(msg) {
+  notifMsg.textContent = msg;
+  notif.classList.add('show');
+  setTimeout(() => notif.classList.remove('show'), 3000);
+}
+
+// Exit / Logout with Loader
+window.handleExit = function() {
+    const btn = document.getElementById('backBtn');
+    const loader = document.getElementById('loaderTrack');
+    const text = document.getElementById('backText');
+    
+    // Disable interaction
+    btn.style.pointerEvents = 'none';
+    text.innerText = "Returning...";
+    loader.style.display = 'block';
+    
+    setTimeout(() => {
+        window.location.href = 'user_home.html';
+    }, 1000);
+}
+
+// Init
+renderEvents();
+renderRoster();
+
+</script>
+</body>
+</html>
